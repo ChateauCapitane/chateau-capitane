@@ -2,7 +2,7 @@
 
 Updated: 2026-10-09. B01 verified; B02a/b locally verified, B02c Supabase integration next. Provider selection resolved.
 
-This is the durable plan. [next.md](../../next.md) is the concise rolling handoff. Follow **Research → Plan → Build → Verify** for each slice; read the relevant section rather than loading the entire project history.
+**Archive since 2026-11-12:** status lives in [docs/NEXT.md](../NEXT.md) and deferred work in [docs/BACKLOG.md](../BACKLOG.md); instructions below to update `next.md` or this file are superseded by [ADR 0001](../decisions/0001-single-session-workflow-and-verify-gate.md). This was the durable plan. Follow **Research → Plan → Build → Verify** for each slice; read the relevant section rather than loading the entire project history.
 
 ## Outcome and boundaries
 

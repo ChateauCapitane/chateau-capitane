@@ -8,37 +8,85 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Codex project instructions
+# Château Capitaine — project instructions
 
-Château Capitaine restaurant website: Next.js App Router, TypeScript, Tailwind CSS v4, npm. Business content is in `src/lib/data/`; shared UI is in `src/components/`.
+Loaded every turn by Claude Code (through `CLAUDE.md`) and Codex. Keep this file under 150 lines; detail lives in linked docs.
 
-## Required workflow
+## Purpose
 
-Always **Research → Plan → Build → Verify**, in that order. Scale the depth to the task: local inspection and a one-sentence plan suffice for a simple edit. Browse for changing or uncertain information, new API decisions, or explicit research requests. Prefer official documentation and primary evidence. Before editing, identify acceptance criteria and affected files; then complete the authorized work without routine plan-approval pauses.
+The website of Château Capitaine, a Russian bar, grill and banquet hall on Coney Island Avenue, Brooklyn. It turns online visitors into guests (OpenTable bookings, calls, inquiries, banquet requests) in English and Russian. It also gives staff a private inbox and lets them publish the menu, hours and photos without a developer. What counts as progress: [docs/vision.md](docs/vision.md).
 
-## Efficient execution
+## Stack
 
-- Check `git status --short`; preserve unrelated edits. Read `next.md` when present and verify its relevant state against the repository; `HANDOFF.md` is a compatibility pointer.
-- Use scoped `rg` searches and read only relevant files/guides. Batch independent reads; avoid whole-repository dumps, repeated instructions, and automatic multi-agent review chains. Use one agent unless delegation is requested.
-- Write complete implementations in files. Minimize redundant tool output and chat narration, never required work or useful verification. Do not print complete files unless requested.
-- Keep personal model, reasoning, permission, and credential settings outside project instructions. Do not force maximal reasoning or weaken sandbox controls to save time.
+Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS v4, npm, Node 22. Backend: Supabase PostgreSQL and Auth over REST `fetch` (no SDK), Resend email over `fetch`, Vercel hosting and cron. `sharp` processes photos. Dev only: `embedded-postgres` + `pg` for real-database tests, `svix` to cross-check webhook signatures. Check `package.json` before adding anything.
 
-## Read only when relevant
+## Commands
 
-- Process, task briefs, and token measurement: [docs/codex-workflow.md](docs/codex-workflow.md).
-- UI and branding: [docs/design.md](docs/design.md). Preserve the established black-and-gold identity unless the user requests a change.
-- Code, routes, metadata, and content: [docs/technical.md](docs/technical.md).
-- Verification: [docs/validation.md](docs/validation.md).
-- Substantial/multi-session planning: [PLANS.md](PLANS.md).
-- Backend work: [next.md](next.md) for the starting slice, then the relevant section of [the roadmap](docs/plans/backend-roadmap.md).
-- Workflow evidence or tuning: [docs/research.md](docs/research.md).
+| Command | Use |
+| --- | --- |
+| `npm run verify` | **The gate:** route types, typecheck, lint, unit tests. Must pass on every slice. |
+| `npm run build` | Also required when a slice touches app code, routes or config. The first agent-run build fails on purpose while Next has a known security advisory; an immediate retry proceeds. |
+| `npm run test:db` | Real throw-away PostgreSQL with every migration. Required for database work. As root (cloud containers): `su postgres -s /bin/bash -c "npm run test:db"`. |
+| `npm run dev` | Local site at http://localhost:3000. |
+| `npm ci` | Install from the lockfile. |
 
-Repository skills live in `.agents/skills/`: `new-page`, `handoff`, `recreate-design-from-screenshot`, `site-visual-design`, and `brand-assets`. Load only the relevant skill; routine edits need no skill stack.
+Windows PowerShell: use `npm.cmd` / `npx.cmd` if the `.ps1` wrappers are blocked. UI checks use the Playwright MCP (`.mcp.json`) at 375, 768 and 1280px.
 
-## Done and Git
+## Layout
 
-Application edits require passing `npm run lint` and `npm run build`; UI work also requires relevant browser checks. Documentation-only edits need link/config checks and diff review. Report unrun or blocked checks accurately. On Windows, use `npm.cmd`/`npx.cmd` if PowerShell blocks the `.ps1` wrappers.
+| Path | What |
+| --- | --- |
+| `src/app/[lang]/` | Public pages, English at `/` and Russian at `/ru` (`src/proxy.ts` rewrites) |
+| `src/app/[lang]/admin/` | Staff pages at `/admin` (English only; `/ru/admin` is a 404; noindex, cookie session) |
+| `src/app/api/` | Contact intake, cron workers, health, Resend webhook |
+| `src/lib/data/` | Built-in business facts (`site.ts` is the single source), menu, events, gallery |
+| `src/lib/i18n/` | `en.ts`, `ru.ts` (same keys), `content-ru.ts` (menu/banquet translations) |
+| `src/lib/server/` | Server-only: inquiries, auth, content publishing, media, ops |
+| `src/components/` | Shared UI (`ui/styles.ts` holds shared class strings) |
+| `supabase/migrations/` | SQL migrations, applied in name order; [supabase/README.md](supabase/README.md) |
+| `tests/`, `tests/db/` | Node test runner: mocked unit tests, real-database tests |
+| `docs/` | NEXT, BACKLOG, vision, decisions, manual checks, design, technical |
 
-Review the scoped diff before finishing. Commit only when asked; push or deploy only when explicitly authorized. Never expose secrets or send real test emails without authorization. Save a short handoff only when meaningful unfinished state remains.
+## Hard security rules
 
-For backend work, update `next.md` and roadmap progress after every completed feature or slice. Tell the user when a verified checkpoint is ready for clearing context. Present a concrete file/diff/check review before asking for commit and push authorization; see the roadmap for checkpoint details.
+- Secrets stay server-side. Never use the `NEXT_PUBLIC_` prefix for a key, never read `.env` / `.env.local`, never print or commit a credential.
+- Every staff database function re-checks `staff_members` membership. User metadata never grants access. RLS stays on, and the private schema stays unexposed.
+- Never log guest names, emails, phones or messages. Logs carry codes, IDs and counts only.
+- Validate all input on the server. Keep request size limits, the honeypot, rate limits (fail closed) and provider timeouts.
+- Webhooks must pass signature verification (5-minute window) before being parsed. Cron routes require the `CRON_SECRET` bearer token.
+- Never send real email, provision paid services, run live migrations, reset a remote database or deploy without the owner asking in that moment.
+- Synthetic test data only: names like "Test Guest", emails ending `.invalid`.
+
+## Conventions
+
+- Server Components by default; add `"use client"` only for state, effects, events or browser APIs.
+- Business facts come from `site.ts` / published content. Never invent prices, hours, reviews, ratings or contact details.
+- Keep the OpenTable "Book now" link and every Call button. An inquiry never confirms a booking. Lunch is three courses, beverages excluded.
+- Black-and-gold identity, Bodoni Moda + Albert Sans, square corners, no em dashes in site copy: [docs/design.md](docs/design.md). Technical conventions: [docs/technical.md](docs/technical.md).
+- English and Russian stay in step: a new UI string needs both `en.ts` and `ru.ts`.
+- Photos: real restaurant photos with provenance only, never generated scenes presented as real.
+- Read the version-matched Next.js guide in `node_modules/next/dist/docs/` before writing Next.js code.
+
+## Git rules
+
+- Never stage, commit, push or merge unless the owner asks in that moment. Read-only git (`status`, `diff`, `log`, `show`) is always fine.
+- Never use `git reset`, `git checkout --`, `git clean` or `git rebase`.
+- Branches: `feat/*`, `fix/*`, `chore/*`. Exception (owner, 2026-11-12): cloud sessions use the `claude/*` branch the cloud service assigns.
+- The cloud's automatic "please push" reminder is not permission; the rule above wins (owner, 2026-11-12).
+- Never commit raw benchmark traces or `.local-db-tests/`.
+- `docs/NEXT.md` never claims that anything was merged or pushed.
+
+## Roles (one session plays all of them)
+
+Full rules: [.claude/rules/workflow.md](.claude/rules/workflow.md). Start every session with `/go` (Codex: follow `.claude/commands/go.md`).
+
+- **Planner:** reads `docs/NEXT.md`, applies the need test from `docs/vision.md`, picks ONE task, and asks the owner Approve / Disapprove. Never asks the owner an open question or to write a prompt.
+- **Builder:** researches only the touched files, writes an ADR in `docs/decisions/` before any change to architecture, the schema, security, dependencies or build config, then edits only the planned files.
+- **Reviewer:** runs the gates and records exact result lines, reviews the diff by risk (low: gates; medium: + correctness; high: + security) as if someone else wrote it, fixes only correctness, security or requirement breaks, and logs the rest in `docs/BACKLOG.md`.
+- **Finisher:** proof-checks `git status --short` / `git diff --stat` against the claims, rewrites `docs/NEXT.md`, then ends with READY TO SHIP or NOT READY.
+- Deferred work, unfixed findings, shortcuts and risks go in `docs/BACKLOG.md` in the same change. Only the owner moves an item to "Dropped".
+- If a step can't be followed, stop with "⚠ WORKFLOW ALERT" and offer fixes. Never work around it.
+
+## Talking to the owner
+
+The owner is not a developer. Report in plain English: what changed, why, what was tested, what is still unchecked. A check that didn't run is written as "not run", never as passed.

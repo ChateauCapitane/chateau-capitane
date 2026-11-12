@@ -4,7 +4,7 @@ Owner preference: always **Research → Plan → Build → Verify**. Optimize fo
 
 ## 1. Research
 
-- Establish the requested outcome and acceptance criteria. Check `git status --short`; preserve existing changes. Read [next.md](../next.md) when present and verify relevant state against current files.
+- Establish the requested outcome and acceptance criteria. Check `git status --short`; preserve existing changes. Read [docs/NEXT.md](NEXT.md) and verify relevant state against current files. Since 2026-11-12 the session loop is [.claude/rules/workflow.md](../.claude/rules/workflow.md) ([ADR 0001](decisions/0001-single-session-workflow-and-verify-gate.md)); where this file disagrees, the workflow wins.
 - Use `rg --files` and scoped `rg -n` searches to locate implementation and callers. Read relevant files and one applicable guide, rather than every document or skill.
 - Read the installed Next.js documentation before Next.js code changes. Local source and installed documentation are the first research sources for routine edits.
 - Browse for new or uncertain APIs, changing facts, comparisons, or an explicit research request. Prefer official documentation and original papers. Record links and the decisions they support. Reuse verified research until its assumptions change; do not browse for every typo.

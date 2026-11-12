@@ -2,6 +2,8 @@
 
 Adopted 2026-10-09 when Claude Code took over building from Codex. Codex keeps its own setup and reviews/refactors later. The operating rules live in [CLAUDE.md](../CLAUDE.md); this file records why.
 
+**Superseded 2026-11-12 by [ADR 0001](decisions/0001-single-session-workflow-and-verify-gate.md):** rules now live in `AGENTS.md` and `.claude/rules/workflow.md`; status in `docs/NEXT.md`; Claude no longer commits automatically. The evidence below still holds.
+
 ## Evidence behind each rule
 
 | Rule | Evidence |

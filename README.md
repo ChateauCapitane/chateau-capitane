@@ -95,12 +95,12 @@ Open this repository in Codex. [AGENTS.md](AGENTS.md) supplies the project instr
 - [Workflow and task briefs](docs/codex-workflow.md)
 - [Design rules](docs/design.md) and [technical conventions](docs/technical.md)
 - [Verification](docs/validation.md) and [execution-plan format](PLANS.md)
-- [Backend roadmap](docs/plans/backend-roadmap.md) and [next session instructions](next.md)
+- [Status](docs/NEXT.md), [backlog](docs/BACKLOG.md), [vision](docs/vision.md), [decisions](docs/decisions/README.md), [owner hand checks](docs/manual-checks.md); [backend roadmap](docs/plans/backend-roadmap.md) (archive)
 - [Research, benchmarks, and measurement protocol](docs/research.md)
 
 Project skills in `.agents/skills/` cover new pages, session handoffs, screenshot recreation, site visual design, and brand assets. Codex loads the relevant skill when needed; there is no mandatory chain of researcher/reviewer agents. Existing website changes must be preserved.
 
-To resume backend work after clearing context, ask Codex: **Read next.md and follow its starting task.** Codex updates it after each completed feature or slice, reports when context can be cleared, and requests commit/push authorization at a reviewed checkpoint. Planning is not permission to push or deploy.
+To resume work after clearing context, run `/go` in Claude Code (in Codex: **follow `.claude/commands/go.md`**). One session plans, builds and reviews a single task under [the workflow rules](.claude/rules/workflow.md), runs `npm run verify`, rewrites `docs/NEXT.md`, and ends with READY TO SHIP or NOT READY. Nothing is committed, pushed or deployed unless the owner asks at that moment.
 
 The existing Playwright browser MCP server is configured in `.codex/config.toml`. Codex loads project configuration only for trusted projects. Restart the client if the server does not appear; first startup may require network access or browser setup. Model, reasoning effort, permissions, and credentials remain in personal settings. This migration does not change installed tools outside the repository.
 
