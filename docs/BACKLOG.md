@@ -21,8 +21,6 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
 - Content publishing: add or remove whole sections or packages, reordering, closing after midnight, pruning old versions.
 - Gallery: reordering, new sections, crop control; unused photos are cleaned up by hand; removed photos can linger about 2 hours in caches.
 - Russian: staff can't enter Russian text, so new staff-edited dishes show in English on `/ru` until added to `src/lib/i18n/content-ru.ts`.
-- Lint: unused `eslint-disable` directive at `src/app/apple-icon.tsx:16`.
-- `.claude/settings.json`: allow Claude to push only to `claude/*` branches (owner chose this 2026-11-12; the owner must make or approve the edit).
-## Dropped
+- Lint: unused `eslint-disable` directive at `src/app/apple-icon.tsx:16`.## Dropped
 
 (Owner only.)

@@ -23,4 +23,4 @@ Return gate: away
 
 ## Repository access
 
-- [ ] Change `.claude/settings.json` so Claude may push only to `claude/*` branches. Claude can't edit its own permissions, so approve the edit in Default mode or make it yourself.
+- [x] Change `.claude/settings.json` so Claude may push only to `claude/*` branches. Approved by the owner 2026-11-12; `main`, force pushes, `--all` and `--mirror` stay denied.
