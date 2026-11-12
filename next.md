@@ -2,6 +2,10 @@
 
 Updated: 2026-10-11. Canonical rolling handoff.
 
+**Open security item (2026-11-12):** `npm audit` reports Next.js 16.4.0 affected by two critical unauthenticated remote-code-execution advisories (GHSA-2464-fhr4-w9xw image optimizer with SVG, GHSA-673q-mjm6-r5xr `use cache` typed arrays) and one high DoS (GHSA-p3m5-59mp-jv5r Server Actions); fixed in 16.4.6. Upgrade `next` and `eslint-config-next` before any deployment. Next.js also fails the first agent-run `npm run build` while affected (`node_modules/next/dist/lib/upgrade/nudge.js`); an immediate retry proceeds.
+
+Cloud sessions (2026-11-12): environment `chateau-capitane` runs `npm ci` and prepares `.local-db-tests/` for the `postgres` user; run `su postgres -s /bin/bash -c "npm run test:db"` (PostgreSQL refuses root; see [docs/validation.md](docs/validation.md)). The test cluster now allows 200 connections (`ddc2f4b`), so `test:db` passes 21/21 on Linux.
+
 ## Owner to-do list (deferred; nothing here blocks local work)
 
 Backend release (B12, see [docs/release-checklist.md](docs/release-checklist.md)): approve Vercel Pro + Supabase Pro (~$45/month) and Resend; verify the sending domain; choose the inquiry-receiving address; open a free uptime monitor (alerts to the owner's email); give names and emails of the first staff; authorize a staging Supabase project (B02c).
