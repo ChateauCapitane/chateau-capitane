@@ -20,7 +20,8 @@ const port = await new Promise((resolvePort, reject) => {
 });
 const cluster = new EmbeddedPostgres({ databaseDir, port, user: "postgres",
   password: randomBytes(24).toString("hex"), persistent: true, authMethod: "scram-sha-256",
-  postgresFlags: ["-h", "127.0.0.1"], onLog: () => {}, onError: () => {} });
+  // The note-cap race below opens 110 connections at once; the default limit is 100.
+  postgresFlags: ["-h", "127.0.0.1", "-c", "max_connections=200"], onLog: () => {}, onError: () => {} });
 const migration = readdirSync("supabase/migrations").filter((name) => name.endsWith(".sql")).sort()
   .map((name) => readFileSync(join("supabase/migrations", name), "utf8")).join("\n");
 const inquiry = { name: "Synthetic Guest", email: "guest@example.invalid", phone: "", date: "2026-12-15", guests: "8", message: "Synthetic request", kind: "contact", eventPackage: "" };
