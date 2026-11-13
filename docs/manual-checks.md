@@ -38,5 +38,5 @@ Dev from PowerShell: `npm.cmd run dev`, then http://localhost:3000 (English) and
 
 ## Done
 
-- [x] **Push rule for cloud sessions** (2026-11-12). Claude may push only to `claude/*` branches, and only when asked;
-  `main`, force pushes, `--all` and `--mirror` stay denied. Since the four-session setup, a push always asks first.
+- [x] **Push rule** (2026-11-12, changed 2026-11-13). Anthony allowed Claude to push, `main` included, only when he
+  asks in that moment; every push asks first. Force pushes, `--all` and `--mirror` stay denied.
