@@ -21,6 +21,14 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
 - Content publishing: add or remove whole sections or packages, reordering, closing after midnight, pruning old versions.
 - Gallery: reordering, new sections, crop control; unused photos are cleaned up by hand; removed photos can linger about 2 hours in caches.
 - Russian: staff can't enter Russian text, so new staff-edited dishes show in English on `/ru` until added to `src/lib/i18n/content-ru.ts`.
-- Lint: unused `eslint-disable` directive at `src/app/apple-icon.tsx:16`.## Dropped
+- Lint: unused `eslint-disable` directive at `src/app/apple-icon.tsx:16`.
+
+## Workflow (ADR-0001)
+
+- `scripts/overseer.mjs` budgets are SteamRoller's (warn 1500, stop 3500 changed lines); recalibrate after about 10 merged slices here.
+- No automated browser suite (e2e/visual gate steps). UI checks are Playwright MCP screenshots by hand; add a suite only if a UI regression slips through.
+- No hand-check gate inside `npm run verify` (SteamRoller's `handChecks.mjs`); the return gate is enforced by `/go` reading `docs/manual-checks.md`.
+
+## Dropped
 
 (Owner only.)

@@ -100,7 +100,7 @@ Open this repository in Codex. [AGENTS.md](AGENTS.md) supplies the project instr
 
 Project skills in `.agents/skills/` cover new pages, session handoffs, screenshot recreation, site visual design, and brand assets. Codex loads the relevant skill when needed; there is no mandatory chain of researcher/reviewer agents. Existing website changes must be preserved.
 
-To resume work after clearing context, run `/go` in Claude Code (in Codex: **follow `.claude/commands/go.md`**). One session plans, builds and reviews a single task under [the workflow rules](.claude/rules/workflow.md), runs `npm run verify`, rewrites `docs/NEXT.md`, and ends with READY TO SHIP or NOT READY. Nothing is committed, pushed or deployed unless the owner asks at that moment.
+To resume work after clearing context, run `/go` in the Claude Code planner session (in Codex: **follow `.claude/commands/go.md`**). Four sessions (planner, builder, scout, UI Builder; [team roles](.claude/rules/team-roles.md)) plan, build and review one task at a time under [the session workflow](.claude/rules/session-workflow.md), run the gates (`npm run gate -- verify build db`), rewrite `docs/NEXT.md`, and end with READY TO SHIP or NOT READY. Nothing is committed, pushed or deployed unless the owner asks at that moment.
 
 The existing Playwright browser MCP server is configured in `.codex/config.toml`. Codex loads project configuration only for trusted projects. Restart the client if the server does not appear; first startup may require network access or browser setup. Model, reasoning effort, permissions, and credentials remain in personal settings. This migration does not change installed tools outside the repository.
 

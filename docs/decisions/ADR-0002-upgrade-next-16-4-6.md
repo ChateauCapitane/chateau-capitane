@@ -1,4 +1,4 @@
-# 0002. Upgrade Next.js to 16.4.6 for security advisories
+# ADR-0002. Upgrade Next.js to 16.4.6 for security advisories
 
 Date: 2026-11-12 · Status: accepted
 

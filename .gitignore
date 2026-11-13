@@ -49,3 +49,6 @@ node_modules
 .local-db-tests/
 # Claude Code personal overrides
 .claude/settings.local.json
+
+# Gate reports
+/.gates/

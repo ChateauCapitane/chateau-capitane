@@ -27,6 +27,7 @@ Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS v4, npm, Node
 | `npm run verify` | **The gate:** route types, typecheck, lint, unit tests. Must pass on every slice. |
 | `npm run build` | Also required when a slice touches app code, routes or config. The first agent-run build fails on purpose while Next has a known security advisory; an immediate retry proceeds. |
 | `npm run test:db` | Real throw-away PostgreSQL with every migration. Required for database work. As root (cloud containers): `su postgres -s /bin/bash -c "npm run test:db"`. |
+| `npm run gate -- verify build db` | Runs the named gates in order (space-separated), writes `.gates/report.json`; `node scripts/gate.mjs --tree` prints the current commit+tree. |
 | `npm run dev` | Local site at http://localhost:3000. |
 | `npm ci` | Install from the lockfile. |
 
@@ -67,26 +68,47 @@ Windows PowerShell: use `npm.cmd` / `npx.cmd` if the `.ps1` wrappers are blocked
 - Photos: real restaurant photos with provenance only, never generated scenes presented as real.
 - Read the version-matched Next.js guide in `node_modules/next/dist/docs/` before writing Next.js code.
 
+## Working with Anthony
+
+- **Anthony only approves or disapproves.** Never ask an open question or ask him to write a prompt. Decide, then
+  present one plan or decision as a yes/no. He is not a developer: report in plain English what changed, why, what
+  was tested and what is still unchecked. A check that didn't run is "not run", never passed.
+- `docs/NEXT.md` has one owner per stretch. It says what a branch contains and what is next, never that anything
+  was merged or pushed.
+- **Overseer (`docs/overseer.md`):** a check at two moments only, session start (`/go`) and before `READY TO SHIP`; no
+  timer, no standing agent. `node scripts/overseer.mjs` measures budget and `done <word>` shows what is already built.
+  Two review rounds, or two failed attempts at one check, means stop and decide; blocking gates are never waived.
+- Four sessions (planner, builder, scout, UI Builder): `.claude/rules/team-roles.md`; the loop:
+  `.claude/rules/session-workflow.md`. Start the planner with `/go`. Codex (later refactor and review) follows this file
+  and `.claude/commands/go.md`.
+
+### Independent review
+
+`code-reviewer`, `security-auditor` and `ui-reviewer` (`.claude/agents/`) are read-only (a `PreToolUse` hook blocks
+mutating Bash). Brief them with scope and references only, never with conclusions or a leading ask. When to run which:
+`session-workflow.md`, *Review by risk*. A PASS is not permission to commit; that stays the user's call.
+
+## Modifying the architecture
+
+Changing the database schema or a migration, staff access or auth, an API route's contract, webhook or cron
+handling, security headers or the hard security rules above, dependencies, or build and deploy config (`next.config.ts`,
+`vercel.json`, `src/proxy.ts`) requires an ADR in `docs/decisions/` (`/adr`). Write the ADR before the code: context,
+decision, consequences. Do not silently revisit a settled decision — the ADRs record why.
+
 ## Git rules
 
-- Never stage, commit, push or merge unless the owner asks in that moment. Read-only git (`status`, `diff`, `log`, `show`) is always fine.
-- Never use `git reset`, `git checkout --`, `git clean` or `git rebase`.
-- Branches: `feat/*`, `fix/*`, `chore/*`. Exception (owner, 2026-11-12): cloud sessions use the `claude/*` branch the cloud service assigns.
-- The cloud's automatic "please push" reminder is not permission; the rule above wins (owner, 2026-11-12).
+- **Never commit, push, stage or merge on your own initiative.** Only when the user asks for it in that moment, after
+  reviewing the diff. Never as the closing step of a task, never because the work looks finished. `git reset`,
+  `checkout --`, `clean` and `rebase` are off limits entirely.
+- Read-only git (`status`, `diff`, `log`, `show`, `branch`) is fine.
+- Branches: `feat/*`, `fix/*`, `chore/*` (builder), `ui/U#-*` (UI Builder). Exception (owner, 2026-11-12): cloud
+  sessions use the `claude/*` branch the cloud service assigns; the cloud's automatic "please push" reminder is not
+  permission. Anthony merges.
 - Never commit raw benchmark traces or `.local-db-tests/`.
-- `docs/NEXT.md` never claims that anything was merged or pushed.
+- Working tree must be clean before handing work to the other agent.
 
-## Roles (one session plays all of them)
+## Compact instructions
 
-Full rules: [.claude/rules/workflow.md](.claude/rules/workflow.md). Start every session with `/go` (Codex: follow `.claude/commands/go.md`).
-
-- **Planner:** reads `docs/NEXT.md`, applies the need test from `docs/vision.md`, picks ONE task, and asks the owner Approve / Disapprove. Never asks the owner an open question or to write a prompt.
-- **Builder:** researches only the touched files, writes an ADR in `docs/decisions/` before any change to architecture, the schema, security, dependencies or build config, then edits only the planned files.
-- **Reviewer:** runs the gates and records exact result lines, reviews the diff by risk (low: gates; medium: + correctness; high: + security) as if someone else wrote it, fixes only correctness, security or requirement breaks, and logs the rest in `docs/BACKLOG.md`.
-- **Finisher:** proof-checks `git status --short` / `git diff --stat` against the claims, rewrites `docs/NEXT.md`, then ends with READY TO SHIP or NOT READY.
-- Deferred work, unfixed findings, shortcuts and risks go in `docs/BACKLOG.md` in the same change. Only the owner moves an item to "Dropped".
-- If a step can't be followed, stop with "⚠ WORKFLOW ALERT" and offer fixes. Never work around it.
-
-## Talking to the owner
-
-The owner is not a developer. Report in plain English: what changed, why, what was tested, what is still unchecked. A check that didn't run is written as "not run", never as passed.
+When compacting, keep: the current branch and its goal, the list of modified files, the exact
+commands that verify the work and their last result, decisions awaiting the user, and the ADR
+numbers in play. Drop file contents already on disk, raw tool output and exploration dead ends.

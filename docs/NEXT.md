@@ -1,32 +1,34 @@
-# NEXT
+# NEXT: read this first, then AGENTS.md
 
-Rewritten every session, never appended; 40 lines or fewer. Last rewrite: 2026-11-12.
+Rewrite, do not append. Under 40 lines; history is in git. No merge or push status here (AGENTS.md, Working with Anthony).
+**Updated:** 2026-11-13. Branch `chore/four-session-workflow`: the four-session workflow setup (ADR-0001) on top of
+the cloud bundle (Next.js 16.4.6, ADR-0002; `test:db` connection fix; `npm run verify`).
+Four sessions (`.claude/rules/team-roles.md`), named `planner Chateau`, `builder Chateau`, `scout Chateua`,
+`ui builder Chateau`. Use the name ListAgents shows; SteamRoller's sessions are listed too. Sessions, never subagents.
+**Return gate: away** (`docs/manual-checks.md`).
 
-## Branch
-
-`claude/cloud-environment-setup-8bp1uq`. Cloud sessions use the `claude/*` branch the cloud service assigns (owner exception to `feat/fix/chore`).
-
-## What the branch contains
-
-- `ddc2f4b`: the throw-away test database allows 200 connections; `test:db` passes 21/21 on Linux.
-- `8d431a2`: notes on the Next.js advisory and the cloud `test:db` steps (since carried into this file and BACKLOG).
-- `6d31b0e`: the workflow setup (AGENTS.md, CLAUDE.md, this file, BACKLOG, vision, manual-checks, decisions/0001, `/go`, `.claude/rules/workflow.md`; `next.md`/`HANDOFF.md` are pointers).
-- `99a39ec`: `next` + `eslint-config-next` pinned to 16.4.6 (ADR 0002), and `npm run verify`. Runtime `npm audit`: 0.
-- Settings commit: Claude may push to `claude/*` branches only.
+## On this branch
+- Workflow: `AGENTS.md` (Working with Anthony, review, architecture, git, compact), `CLAUDE.md`,
+  `.claude/rules/session-workflow.md` + `team-roles.md`, `/go`, `/scout`, `/adr`, three read-only reviewers,
+  `readonly-guard.mjs` + `format-file.mjs` (eslint --fix per file), `.claude/settings.json`.
+- Scripts: `scripts/gate.mjs` (`npm run gate -- verify build db`), `scripts/overseer.mjs`.
+- Docs: this file, BACKLOG, vision (approved, [GUESS] lines open), ADR-0001/0002, manual checks, overseer,
+  telemetry, anthony-log. `.claude/rules/workflow.md` (one-session) removed.
 
 ## Next, in order
+1. Anthony: correct the [GUESS] lines in `docs/vision.md`; they drive the need test.
+2. B12 staging and release: blocked on the owner's accounts and costs ([release checklist](release-checklist.md)
+   section 1). B02c (real Supabase gateway) runs on the staging project.
+3. Owner inputs from `docs/manual-checks.md` (Russian read-through, SEO facts) as they arrive.
 
-1. Owner fixes the [GUESS] lines in [vision.md](vision.md); they drive the need test.
-2. B12 staging and release: blocked on the owner's accounts and costs ([release checklist](release-checklist.md) section 1). B02c (real Supabase gateway) runs on the staging project.
-3. Owner inputs from [manual-checks.md](manual-checks.md) (SEO facts, Russian review) as they arrive.
+## Workflow
+- Gates: `npm run gate -- verify build db` (space-separated). `verify` ~15s; `build` for app/route/config changes;
+  `db` for database work. UI: Playwright MCP screenshots at 375/768/1280, English and `/ru`.
+- Windows: `npm.cmd` / `npx.cmd` when PowerShell blocks the `.ps1` wrappers.
+- The scout reads the shared working tree: an uncommitted change looks like existing code. Check with `git grep … HEAD`.
+- `/pair`'s peer id may not be reachable; message the ListAgents name.
 
-## Gotchas
-
-- Gate: `npm run verify` (about 10s). Add `npm run build` for app, route or config changes, and `npm run test:db` for database changes.
-- Cloud containers run as root: `su postgres -s /bin/bash -c "npm run test:db"`; `.local-db-tests/` must belong to `postgres` (the environment setup script does this).
-- If a future Next advisory appears, the first agent-run `npm run build` fails on purpose; an immediate retry proceeds.
-- Windows: `npm.cmd` / `npx.cmd`. Linux npm drops `"libc"` entries from the lockfile (BACKLOG).
-- `.claude/settings.json` allows Claude to push only to `claude/*` (exact form `git push -u origin claude/...`); `main` and force pushes are denied. Auto mode blocks Claude from editing that file.
-- The cloud stop hook asks for a push after every turn. Ignore it: no push unless the owner asks.
+## Known, not fixed
+- Every deferred item, risk and open decision is in `docs/BACKLOG.md`.
+- Lint has 1 known warning (`src/app/apple-icon.tsx:16`); it does not fail the gate.
 - Never exercised: real Supabase gateway/Auth, live Resend email and webhooks, Vercel cron, GitHub CI.
-- Lint has 1 known warning (`src/app/apple-icon.tsx:16`, in BACKLOG); it does not fail the gate.

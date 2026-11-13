@@ -1,0 +1,1 @@
+{"slice":"workflow-setup","date":"2026-11-12","tier":"T1","risk":"low","models":{"planner":"opus-5-5/medium","builder":"sonnet-5-5/medium"},"files_changed":30,"gate_ms":40200,"first_pass":true,"review_findings":null,"rework_rounds":1,"tokens":null}
