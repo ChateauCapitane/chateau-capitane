@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Albert_Sans, Bodoni_Moda } from "next/font/google";
 
+import { ClickTracker } from "@/components/layout/click-tracker";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { InkindPopup } from "@/components/layout/inkind-popup";
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
         </main>
         <Footer />
         <InkindPopup />
+        <ClickTracker />
       </body>
     </html>
   );
