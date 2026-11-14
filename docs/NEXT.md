@@ -16,11 +16,12 @@ Four sessions (`.claude/rules/team-roles.md`), named `planner Chateau`, `builder
   telemetry, anthony-log. `.claude/rules/workflow.md` (one-session) removed.
 
 ## Next, in order
-1. Click counts (ADR-0003, branch `feat/click-counts`) contain: Book now / Call tap counts in Supabase plus a 6-month
-   admin table. Gates green, both reviews PASS. Still to do: the admin table check and a real count on staging (manual-checks).
-2. B12 staging and release: blocked on the owner's accounts and costs ([release checklist](release-checklist.md)
+1. **Next session: review and audit of the whole app.** Anthony pastes the prompt after `/clear`; wait for it.
+2. Click counts (ADR-0003, on `main`): Book now / Call tap counts in Supabase plus a 6-month admin table. Gates green,
+   both reviews PASS. Still to do: the admin table check and a real count on staging (manual-checks).
+3. B12 staging and release: blocked on the owner's accounts and costs ([release checklist](release-checklist.md)
    section 1). B02c (real Supabase gateway) runs on the staging project.
-3. Owner inputs from `docs/manual-checks.md` (Russian read-through, SEO facts) as they arrive.
+4. Owner inputs from `docs/manual-checks.md` (Russian read-through, SEO facts) as they arrive.
 
 ## Workflow
 - Gates: `npm run gate -- verify build db` (space-separated). `verify` ~15s; `build` for app/route/config changes;
