@@ -6,8 +6,8 @@ Status: B11a (health check, structured logs, CI), B11b (backups runbook, local r
 
 `GET /api/health`
 
-- No credentials: `200 {"ok":true}`. Proves only that the site is running; touches no storage.
-- `Authorization: Bearer $CRON_SECRET`: reads `public.ops_snapshot()` (counts and ages only, no guest data) and answers `200` when healthy, `503` otherwise, with `status` (`ok` / `attention` / `down`), `problems` and the numbers.
+- No credentials: `200 {"ok":true}`. Proves only that the site is running; touches no storage, except that any `Authorization` header causes one security-event write, capped at 60 per event code per minute per instance.
+- `Authorization: Bearer $HEALTH_TOKEN` (the uptime monitor's own token, not `CRON_SECRET`; ADR-0005): reads `public.ops_snapshot()` (counts and ages only, no guest data) and answers `200` when healthy, `503` otherwise, with `status` (`ok` / `attention` / `down`), `problems` and the numbers.
 
 Point an uptime monitor at it with that header; it alerts on any non-200. Problem codes:
 
@@ -18,6 +18,7 @@ Point an uptime monitor at it with that header; it alerts on any non-200. Proble
 | `notification_jobs_failed` / `_uncertain` | Email rejected, out of attempts, or may have been sent | Open the inquiry in the staff inbox (the guest message is stored) and follow up by phone/email; check Resend's log for the job. |
 | `email_delivery_problems` | A bounce, failure, suppression or complaint in the last 7 days | Check the staff address in Resend. |
 | `delivery_event_backlog` | Over 5,000 delivery events that match no job | Check `RESEND_WEBHOOK_SECRET` and the Resend webhook; unmatched events are cleaned by the retention step once approved. |
+| `staff_host_unset` | Production without `ADMIN_HOST`, so the staff pages are not limited to their own host | Set `ADMIN_HOST` in Vercel (production) and redeploy. |
 
 The snapshot also reports `inquiries24h` and `loginHitsNow` (active sign-in attempt counters; a sudden jump means password guessing, which is already rate limited).
 
@@ -63,7 +64,7 @@ How it runs: a daily Vercel Cron (`/api/cron/retention`, 03:17 UTC) calls `publi
 
 ## Alerts
 
-Owner chose a free uptime monitor that emails the owner (2026-10-10). Setup is manual and needs an account in the owner's name: create an HTTPS monitor for `https://<site>/api/health`, every 5 minutes, add the header `Authorization: Bearer <CRON_SECRET>`, alert when the status is not 200. Not set up (no deployment yet); do it in B12.
+Owner chose a free uptime monitor that emails the owner (2026-10-10). Setup is manual and needs an account in the owner's name: create an HTTPS monitor for `https://<site>/api/health`, every 5 minutes, add the header `Authorization: Bearer <HEALTH_TOKEN>`, alert when the status is not 200. Not set up (no deployment yet); do it in B12.
 
 ## Environments
 
@@ -72,6 +73,7 @@ Owner chose a free uptime monitor that emails the owner (2026-10-10). Setup is m
 | `SUPABASE_URL` / `SUPABASE_SECRET_KEY` | Unset, or loopback test database | Separate staging Supabase project (synthetic data only), never the production keys | Production project |
 | `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL` | Unset | Unset: with no Resend key the worker does nothing and jobs wait; addresses ending `.invalid` are never sent | Set at release only |
 | `RETENTION_ENABLED` | Unset | Unset | `1` at release |
-| `CRON_SECRET`, `RESEND_WEBHOOK_SECRET` | Test values | Own values | Own values |
+| `CRON_SECRET`, `RESEND_WEBHOOK_SECRET`, `HEALTH_TOKEN` | Test values | Own values | Own values |
+| `ADMIN_HOST` (staff host, ADR-0005) | Unset | Unset | `admin.<domain>` once its DNS record exists |
 
 Set production values only on Vercel's Production scope so previews cannot read them. Vercel runs cron jobs on production deployments only, so previews never send mail or clean data by themselves.

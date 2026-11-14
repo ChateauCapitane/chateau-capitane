@@ -22,18 +22,18 @@ npm run lint
 
 ## Pages
 
-English is served at the site root and Russian under `/ru` (for example `/menu` and `/ru/menu`). Both come from one set of pages in `src/app/[lang]/`; `src/proxy.ts` rewrites English addresses to `/en/...` and redirects a visible `/en/...` back to the root. Fixed wording lives in `src/lib/i18n/en.ts` and `ru.ts` (same keys, enforced by the type); menu, banquet and gallery text is translated by exact English string in `src/lib/i18n/content-ru.ts` and falls back to English when a string has no entry. The language button is `src/components/layout/language-switch.tsx`.
+English is served at the site root and Russian under `/ru` (for example `/menu` and `/ru/menu`). Both come from one set of pages in `src/app/[lang]/(site)/` (staff pages live in `(staff)/admin/` under their own root layout, so third-party scripts never load there; ADR-0005); `src/proxy.ts` rewrites English addresses to `/en/...` and redirects a visible `/en/...` back to the root. Fixed wording lives in `src/lib/i18n/en.ts` and `ru.ts` (same keys, enforced by the type); menu, banquet and gallery text is translated by exact English string in `src/lib/i18n/content-ru.ts` and falls back to English when a string has no entry. The language button is `src/components/layout/language-switch.tsx`.
 
 | Route | File |
 |---|---|
-| `/`, `/ru` | `src/app/[lang]/page.tsx` |
-| `/menu` | `src/app/[lang]/menu/page.tsx` |
-| `/private-events` | `src/app/[lang]/private-events/page.tsx` |
-| `/gallery` | `src/app/[lang]/gallery/page.tsx` |
-| `/about` | `src/app/[lang]/about/page.tsx` |
-| `/contact` | `src/app/[lang]/contact/page.tsx` |
-| `/testimonials` | `src/app/[lang]/testimonials/page.tsx` |
-| 404 | `src/app/[lang]/not-found.tsx` |
+| `/`, `/ru` | `src/app/[lang]/(site)/page.tsx` |
+| `/menu` | `src/app/[lang]/(site)/menu/page.tsx` |
+| `/private-events` | `src/app/[lang]/(site)/private-events/page.tsx` |
+| `/gallery` | `src/app/[lang]/(site)/gallery/page.tsx` |
+| `/about` | `src/app/[lang]/(site)/about/page.tsx` |
+| `/contact` | `src/app/[lang]/(site)/contact/page.tsx` |
+| `/testimonials` | `src/app/[lang]/(site)/testimonials/page.tsx` |
+| 404 | `src/app/[lang]/(site)/not-found.tsx` |
 
 Staff pages (`/admin`) stay English only; `/ru/admin` is a 404.
 
@@ -70,7 +70,12 @@ The form (`src/components/contact/contact-form.tsx`) posts to `src/app/api/conta
 | `CONTACT_FROM_EMAIL` | The sender address. Until the domain is verified in Resend, use its test sender, `Château Capitaine <onboarding@resend.dev>`. |
 | `CONTACT_TO_EMAIL` | Optional. The recipient, which defaults to `site.email`. The test sender only delivers to the Resend account owner's own address, so set this to that address while testing. |
 | `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Inquiry storage. Server-only. |
-| `CRON_SECRET` | Authenticates the scheduled worker. Random, 16+ characters. |
+| `CRON_SECRET` | Authenticates the scheduled workers. Random, 16+ characters. |
+| `HEALTH_TOKEN` | Uptime monitor's bearer for `/api/health` readiness. Random, 16+ characters, different from `CRON_SECRET`. |
+| `ADMIN_HOST` | Optional staff host (e.g. `admin.<domain>`): staff pages are served only there (ADR-0005). Leave unset locally. |
+| `MONITOR_TOKEN` | Bearer for the read-only incident API (`/api/security/incidents`). Random, 16+ characters, different from the other tokens. Unset means the API refuses everyone (ADR-0004). |
+| `SECURITY_ALERT_EMAIL` | Where security alert emails go (needs `RESEND_API_KEY` and `CONTACT_FROM_EMAIL`). Unset: incidents are still recorded, nothing is emailed. |
+| `SECURITY_ACTIONS_DISABLED` | Emergency stop. Set to `1` and every block and pause stops applying at once, and new ones are refused. |
 
 If storage or sender settings aren't set, the form shows a message asking the guest to call instead. Without `CRON_SECRET`/`RESEND_API_KEY`, inquiries are stored but no email goes out until they are set.
 

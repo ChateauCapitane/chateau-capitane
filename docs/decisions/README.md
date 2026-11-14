@@ -13,3 +13,5 @@ Older decisions made before this folder existed live in `docs/plans/` (for examp
 - [ADR-0001. Four-session agent workflow and the `npm run verify` gate](ADR-0001-agent-workflow.md)
 - [ADR-0002. Upgrade Next.js to 16.4.6 for security advisories](ADR-0002-upgrade-next-16-4-6.md)
 - [ADR-0003. Count Book now and Call taps ourselves, in Supabase](ADR-0003-first-party-click-counts.md)
+- [ADR-0004. Security monitoring, incident records and owner-approved response](ADR-0004-security-monitoring-and-response.md)
+- [ADR-0005. Security headers, staff-area isolation and a separate monitoring token](ADR-0005-security-headers-and-admin-isolation.md)

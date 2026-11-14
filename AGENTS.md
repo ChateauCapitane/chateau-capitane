@@ -37,8 +37,8 @@ Windows PowerShell: use `npm.cmd` / `npx.cmd` if the `.ps1` wrappers are blocked
 
 | Path | What |
 | --- | --- |
-| `src/app/[lang]/` | Public pages, English at `/` and Russian at `/ru` (`src/proxy.ts` rewrites) |
-| `src/app/[lang]/admin/` | Staff pages at `/admin` (English only; `/ru/admin` is a 404; noindex, cookie session) |
+| `src/app/[lang]/(site)/` | Public pages (own root layout with inKind and click tracking), English at `/` and Russian at `/ru` (`src/proxy.ts` rewrites) |
+| `src/app/[lang]/(staff)/admin/` | Staff pages at `/admin` (separate root layout, no third-party scripts, ADR-0005; English only; `/ru/admin` is a 404; noindex, cookie session) |
 | `src/app/api/` | Contact intake, cron workers, health, Resend webhook |
 | `src/lib/data/` | Built-in business facts (`site.ts` is the single source), menu, events, gallery |
 | `src/lib/i18n/` | `en.ts`, `ru.ts` (same keys), `content-ru.ts` (menu/banquet translations) |

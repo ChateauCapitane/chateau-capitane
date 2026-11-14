@@ -11,6 +11,8 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
 - Unchecked until deployed: Resend delivery and the live webhook `tags` shape, Vercel cron behaviour, Vercel request-size limits, real `x-vercel-forwarded-for` values, real Supabase restore.
 - GitHub CI (`.github/workflows/ci.yml`) has never been seen running.
 - Click counts (ADR-0003, security audit 2026-11-13, low): off Vercel there is no `x-vercel-forwarded-for`, so every tap shares one "unattributed" rate-limit bucket (30 per 10 min) and real taps get dropped. Recheck when the host is chosen (B12). The beacon and the `/admin` exclusion were checked in a local browser on 2026-11-13; the count reaching a real database is still unchecked (staging check in manual-checks).
+- Security events (audit 2026-11-14, low): the write cap (60 per event code per minute) is per server instance, so the real ceiling grows with Vercel instances (`ponytail:` in `src/lib/server/security/record.ts`); and it is per code, not per network, so one flooding network can crowd out a quieter second one's events for that minute (detection still fires for the flooder). Upgrade: a shared bucket in the database, a per-network share.
+- Security (audit 2026-11-14, low): a track flood above the site-wide cap (600 per 10 min) drops real tap counts for everyone (fails closed by design). Staff host and the `isStaffHost` check trust the raw `Host` header; correct on Vercel, recheck if B12 moves hosting behind another proxy.
 - Accepted shortcuts: the Supabase secret key doubles as the rate-limit HMAC key; a few networks can fill the site-wide contact cap (guests then see the phone number); a retry lost during a package rename gives a 409 and a possible duplicate.
 
 ## Deferred work

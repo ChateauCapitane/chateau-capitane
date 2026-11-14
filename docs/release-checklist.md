@@ -30,7 +30,8 @@ Nothing here has been run: no staging project, deployment or live email exists y
 | Gallery | Upload a phone-sized photo, refused disguised file, publish, remove, rollback. |
 | Buttons | OpenTable "Book now" and every "Call" link still work on `/`, `/menu`, `/private-events`, `/contact`. |
 | Restore | Dashboard restore of a staging backup into a scratch project; compare row counts and run `/api/health`. Follow "If data is lost or wrong" in [operations](backend-operations.md). |
-| Health/monitor | Create the uptime monitor on the staging URL with the Bearer header; confirm it alerts when the secret is wrong. |
+| Health/monitor | Create the uptime monitor on the staging URL with `Bearer HEALTH_TOKEN`; confirm it alerts when the token is wrong. |
+| Security | Supabase Auth sign-up is OFF. Response headers present (`curl -I`), and `curl -I` on `/admin/login` shows the full staff CSP (`script-src 'self'`), not only `frame-ancestors`. Staff host: `/admin`, `/ru/admin/login`, `/%61dmin/login` and `/admin/refresh` 404 on the public host and work on `ADMIN_HOST`; `https://<admin-host>//evil.test` stays on the site; `/api/health` with `HEALTH_TOKEN` shows no `staff_host_unset`. CI action SHAs match their tags (`git ls-remote https://github.com/actions/checkout v4.4.0`, same for `setup-node`). Incident checks in [incident-response.md](incident-response.md) "Verify before calling it active". |
 | CI | First push: the `ci.yml` run is green on GitHub (including the database tests on Linux). |
 
 Also re-run `npm audit --omit=dev` and review the dev-only ESLint advisories before release.
@@ -39,7 +40,7 @@ Also re-run `npm audit --omit=dev` and review the dev-only ESLint advisories bef
 
 1. **Push** the branch (explain: pushing triggers CI and, if the repo is linked to Vercel, a preview build; merging to `main` deploys production automatically).
 2. Create the production Supabase project, apply migrations, add owner and staff.
-3. Vercel Production scope only: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (verified domain), `CONTACT_TO_EMAIL`, `CRON_SECRET`, `RESEND_WEBHOOK_SECRET`. Leave `RETENTION_ENABLED` unset for the first week, then set `1`.
+3. Vercel Production scope only: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (verified domain), `CONTACT_TO_EMAIL`, `CRON_SECRET`, `RESEND_WEBHOOK_SECRET`, `HEALTH_TOKEN`, `ADMIN_HOST` (with its DNS record; **required before staff use the live site**, audit SEC-01). Leave `RETENTION_ENABLED` unset for the first week, then set `1`.
 4. Create the Resend webhook pointing to `https://<site>/api/webhooks/resend`.
 5. Deploy. Create the production uptime monitor on `/api/health`.
 6. **Live email (owner)**: send one real test inquiry from the live form and confirm it arrives at the staff address. Do not book a real table via OpenTable.
@@ -57,4 +58,4 @@ Also re-run `npm audit --omit=dev` and review the dev-only ESLint advisories bef
 
 ## Known limits to tell the owner
 
-No MFA or forgot-password form, roles changed by SQL only, no inbox kind filter, no photo reordering, the build fails if storage is configured but unreachable, backups lose up to a day (PITR is an optional $100/month). Full list in `supabase/README.md`.
+A staff member who opens an `/admin` link from an email or another site after the short sign-in token has expired lands on the sign-in page once (cross-site refresh refused, SEC-04; with `ADMIN_HOST` set also strict cookies), by design. No MFA or forgot-password form, roles changed by SQL only, no inbox kind filter, no photo reordering, the build fails if storage is configured but unreachable, backups lose up to a day (PITR is an optional $100/month). Full list in `supabase/README.md`.
