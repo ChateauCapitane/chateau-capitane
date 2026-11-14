@@ -10,6 +10,13 @@ own thinking (resume, interviews). The rules for each entry:
 Newest first. Written by the planner at every READY TO SHIP and whenever Anthony gives a new report or decision.
 Earlier history (B01-B12, SEO, Russian version) is in git (`git log -p -- next.md`) and was not backfilled.
 
+## 2026-11-13: the vision's open questions answered
+- **Found:** the vision draft had 4 guesses that decide what gets built next.
+- **His thinking:** about 90% of guests prefer Russian; banquets are the biggest revenue line; analytics is fine if free.
+- **Result (agents):** `docs/vision.md` updated: banquets rank first, Russian is treated as the main site, analytics
+  added to BACKLOG with research and an ADR first. He then approved counting taps ourselves (free, no cookies):
+  ADR-0003, branch `feat/click-counts`. Gates green, code and security reviews PASS. Not committed yet.
+
 ## 2026-11-12: the SteamRoller four-session workflow, and the Next.js security bundle
 - **Found:** this project ran a one-session workflow, set up by a cloud session earlier the same day, while his
   SteamRoller project runs a tested four-session team.

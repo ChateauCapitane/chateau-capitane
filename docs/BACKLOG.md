@@ -10,9 +10,12 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
 - Real Supabase gateway, Auth and migration workflow never exercised (B02c). Must run on staging before release.
 - Unchecked until deployed: Resend delivery and the live webhook `tags` shape, Vercel cron behaviour, Vercel request-size limits, real `x-vercel-forwarded-for` values, real Supabase restore.
 - GitHub CI (`.github/workflows/ci.yml`) has never been seen running.
+- Click counts (ADR-0003, security audit 2026-11-13, low): off Vercel there is no `x-vercel-forwarded-for`, so every tap shares one "unattributed" rate-limit bucket (30 per 10 min) and real taps get dropped. Recheck when the host is chosen (B12). The beacon and the `/admin` exclusion were checked in a local browser on 2026-11-13; the count reaching a real database is still unchecked (staging check in manual-checks).
 - Accepted shortcuts: the Supabase secret key doubles as the rate-limit HMAC key; a few networks can fill the site-wide contact cap (guests then see the phone number); a retry lost during a package rename gives a 409 and a possible duplicate.
 
 ## Deferred work
+
+- Analytics leftovers from ADR-0003: language split for inquiries (column + intake change), page views (Search Console covers search; revisit Cloudflare Web Analytics terms if needed), CSV export.
 
 - B12 staging and release ([release checklist](release-checklist.md)): blocked on the owner's accounts.
 - Uptime monitor and alert destination; real restore drill on staging.

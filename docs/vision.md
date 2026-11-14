@@ -1,16 +1,16 @@
 # Vision: what moves the product forward
 
-Drafted 2026-11-12 from the repository. Lines marked **[GUESS]** are mine; please correct them.
+Drafted 2026-11-12 from the repository; owner answers added 2026-11-13 (Anthony).
 
 ## Who it serves
 
-- **Guests:** people in south Brooklyn looking for dinner, a celebration or a banquet hall, many of them Russian-speaking. **[GUESS: how large a share of guests prefer Russian]**
+- **Guests:** people in south Brooklyn looking for dinner, a celebration or a banquet hall. About 90% prefer Russian (Anthony, 2026-11-13), so `/ru` is the main site in practice: a Russian gap or mistake counts as much as a broken English page.
 - **Staff and owner:** answer inquiries quickly and keep the menu, hours and photos current without a developer.
 
 ## The product moves forward when
 
-1. **More visitors take an action:** tap Book now (OpenTable), Call, send an inquiry, or ask about a banquet package.
-2. **Banquet and private-event inquiries grow.** **[GUESS: banquets are the biggest revenue line, so they rank above table bookings]**
+1. **Banquet and private-event inquiries grow.** Banquets are the biggest revenue line (Anthony, 2026-11-13), so they rank above table bookings.
+2. **More visitors take an action:** tap Book now (OpenTable), Call, send an inquiry, or ask about a banquet package.
 3. **More people find the site:** local search, the Google Business Profile and maps listings, and Russian-language search.
 4. **Staff need the developer less:** they handle inquiries, menu, hours and photos themselves.
 5. **The site goes live safely.** Everything built so far earns nothing until the release (B12). Once the owner's accounts exist, this outranks new features.
@@ -25,4 +25,4 @@ Drafted 2026-11-12 from the repository. Lines marked **[GUESS]** are mine; pleas
 
 - Something the owner, staff or a guest actually hit.
 - A measured cost or risk, for example an npm audit advisory, a failing check, or a slow page with numbers.
-- **[GUESS]** Once live: booking-link clicks, calls, inquiries per month. No analytics are installed today, so the site cannot measure these yet. Adding analytics needs an owner decision.
+- Once live: booking-link clicks, calls, inquiries and banquet requests per month, split by English and Russian. Analytics is approved if it is free (Anthony, 2026-11-13); no paid tier or expiring trial. Not installed yet (BACKLOG).

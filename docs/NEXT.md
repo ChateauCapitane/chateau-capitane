@@ -1,7 +1,7 @@
 # NEXT: read this first, then AGENTS.md
 
 Rewrite, do not append. Under 40 lines; history is in git. No merge or push status here (AGENTS.md, Working with Anthony).
-**Updated:** 2026-11-13. Branch `chore/four-session-workflow`: the four-session workflow setup (ADR-0001) on top of
+**Updated:** 2026-11-13. Branch `main` holds the four-session workflow setup (ADR-0001) on top of
 the cloud bundle (Next.js 16.4.6, ADR-0002; `test:db` connection fix; `npm run verify`).
 Four sessions (`.claude/rules/team-roles.md`), named `planner Chateau`, `builder Chateau`, `scout Chateua`,
 `ui builder Chateau`. Use the name ListAgents shows; SteamRoller's sessions are listed too. Sessions, never subagents.
@@ -16,7 +16,8 @@ Four sessions (`.claude/rules/team-roles.md`), named `planner Chateau`, `builder
   telemetry, anthony-log. `.claude/rules/workflow.md` (one-session) removed.
 
 ## Next, in order
-1. Anthony: correct the [GUESS] lines in `docs/vision.md`; they drive the need test.
+1. Click counts (ADR-0003, branch `feat/click-counts`) contain: Book now / Call tap counts in Supabase plus a 6-month
+   admin table. Gates green, both reviews PASS. Still to do: the admin table check and a real count on staging (manual-checks).
 2. B12 staging and release: blocked on the owner's accounts and costs ([release checklist](release-checklist.md)
    section 1). B02c (real Supabase gateway) runs on the staging project.
 3. Owner inputs from `docs/manual-checks.md` (Russian read-through, SEO facts) as they arrive.

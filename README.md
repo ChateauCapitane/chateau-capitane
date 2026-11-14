@@ -37,6 +37,10 @@ English is served at the site root and Russian under `/ru` (for example `/menu` 
 
 Staff pages (`/admin`) stay English only; `/ru/admin` is a 404.
 
+The admin dashboard shows the last 6 months of Book now and Call taps (English / Russian), inquiries and banquet
+requests. Taps are counted first-party in Supabase, with no cookies or personal data (`src/app/api/track/route.ts`,
+[ADR-0003](docs/decisions/ADR-0003-first-party-click-counts.md)). They are indicative counts, not confirmed bookings or calls.
+
 ## Editing content
 
 | What | Where |

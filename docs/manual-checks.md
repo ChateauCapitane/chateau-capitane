@@ -35,6 +35,8 @@ Dev from PowerShell: `npm.cmd run dev`, then http://localhost:3000 (English) and
   staging check wanted? The owner agrees to its guest-data terms.
 - [ ] **Release accounts and costs** ([release checklist](release-checklist.md) section 1): Vercel Pro + Supabase Pro
   (about $45/month), Resend with a verified domain, an uptime monitor, first staff names and emails.
+- [ ] **Tap counts on staging (ADR-0003):** tap Book now and Call on `/` and `/ru`, then check that the admin dashboard
+  table counts them, at 375/768/1280px. Not checked locally, because admin needs a real staff login.
 
 ## Done
 
