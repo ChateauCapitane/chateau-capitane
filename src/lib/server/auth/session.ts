@@ -1,16 +1,18 @@
 import "server-only";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { cookies, headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { getPersistenceConfiguration } from "../inquiries/persistence";
-import { refreshSession, resolveStaff, safeAdminPath, signOut, type Session, type Staff } from "./staff-auth";
+import { isStaffHost, refreshSession, resolveStaff, safeAdminPath, signOut, type Session, type Staff } from "./staff-auth";
 
 const ACCESS = "cc_staff_access";
 const REFRESH = "cc_staff_refresh";
 /** Sign-in lasts while staff are active: each hourly renewal extends it; 12 idle hours ends it. */
 const IDLE_SECONDS = 12 * 60 * 60;
-// httpOnly: no page script can read the tokens. Path /admin: never sent with public page requests.
-const options = () => ({ httpOnly: true, sameSite: "lax" as const, path: "/admin",
-  secure: process.env.NODE_ENV === "production" });
+// httpOnly: no page script can read the tokens. Path /admin: never sent with public page requests. No Domain
+// attribute: host-only, so the staff host's cookies never reach the public host. With ADMIN_HOST set (ADR-0005)
+// they are also SameSite=Strict, so requests started from the public site carry none.
+const options = () => ({ httpOnly: true, sameSite: process.env.ADMIN_HOST?.trim() ? "strict" as const : "lax" as const,
+  path: "/admin", secure: process.env.NODE_ENV === "production" });
 
 /** Server Functions and Route Handlers only (Next.js cannot set cookies while rendering). */
 export async function saveSession(session: Session) {
@@ -52,6 +54,8 @@ export async function readTokens() {
  * Membership is re-read on every call.
  */
 export async function requireStaff(returnTo: string): Promise<Staff> {
+  // Route handlers and Server Actions too, not only the proxy path check (ADR-0005).
+  if (!isStaffHost((await headers()).get("host"))) notFound();
   // Read cookies first: this marks the page as per-request, so it is never prerendered at build time.
   const { accessToken, refreshToken } = await readTokens();
   const configuration = getPersistenceConfiguration();

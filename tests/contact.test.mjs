@@ -144,7 +144,9 @@ test("records one normalized inquiry with server-controlled notification setting
 for (const [label, body] of [
   ["malformed JSON", "{"], ["array body", []], ["null body", null],
   ["blank name", { ...valid, name: " " }], ["missing message", { name: "Guest", email: "guest@example.test" }],
-  ["invalid email", { ...valid, email: "not-an-email" }], ["oversized message", { ...valid, message: "x".repeat(5001) }],
+  ["invalid email", { ...valid, email: "not-an-email" }],
+  ["email with a query mark", { ...valid, email: "guest@example.test?cc=other@example.test" }],
+  ["email with an ampersand", { ...valid, email: "guest&bcc=other@example.test" }], ["oversized message", { ...valid, message: "x".repeat(5001) }],
   ["wrong optional field type", { ...valid, phone: 123 }], ["wrong honeypot type", { ...valid, company: [] }],
   ["non-leap February 29", { ...valid, date: "2027-02-29" }], ["February 30", { ...valid, date: "2028-02-30" }],
   ["invalid month", { ...valid, date: "2028-13-01" }], ["zero guests", { ...valid, guests: "0" }],
@@ -264,6 +266,7 @@ test("the Next route uses current server environment and the site recipient fall
     "@/lib/data/site": { site: { email: "fallback@example.test" } },
     "@/lib/server/inquiries/abuse-limit": { checkContactLimit: async () => ({ kind: "allowed" }) },
     "@/lib/server/ops": { requestLogger: () => () => {} },
+    "@/lib/server/security/record": { liveSecurity: { gate: async () => ({ kind: "clear" }), event: async () => {} } },
     "@/lib/server/inquiries/persistence": {
       getPersistenceConfiguration: () => persistence,
       recordContactInquiry: async (inquiry, _key, settings) => { calls.push({ ...settings, inquiry }); return { kind: "recorded", inquiryId: "id" }; },
@@ -283,8 +286,9 @@ test("the Next route uses current server environment and the site recipient fall
   assert.equal((await route.POST(request({ ...valid, event: "kids" }))).status, 400);
 });
 
-test("vercel.json schedules the notification worker every minute and retention daily", () => {
+test("vercel.json schedules the notification worker every minute, security detection every five, retention daily", () => {
   assert.deepEqual(JSON.parse(readFileSync("vercel.json", "utf8")).crons,
     [{ path: "/api/cron/notifications", schedule: "* * * * *" },
+      { path: "/api/cron/security", schedule: "*/5 * * * *" },
       { path: "/api/cron/retention", schedule: "17 3 * * *" }]);
 });

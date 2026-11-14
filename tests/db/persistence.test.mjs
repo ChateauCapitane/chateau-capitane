@@ -646,7 +646,7 @@ test("real PostgreSQL persistence foundation", { timeout: 120_000 }, async (t) =
       for (const id of [open, recent, active]) assert.equal(await alive(id), 1);
       assert.equal((await q("select count(*)::int n from inquiry_private.notification_jobs where inquiry_id=$1", [active]))[0].n, 1);
       assert.equal((await q("select count(*)::int n from inquiry_private.delivery_events where event_id=$1", ["ev_" + recent]))[0].n, 0);
-      assert.deepEqual(await asService("select public.run_retention(200) r").then((r) => r[0].r), { inquiries: 0, deliveryEvents: 0, submissionKeys: 0, auditEvents: 0 });
+      assert.deepEqual(await asService("select public.run_retention(200) r").then((r) => r[0].r), { inquiries: 0, deliveryEvents: 0, submissionKeys: 0, auditEvents: 0, securityRecords: 0 });
       await rejectsSql(admin, "select public.run_retention(0)", [], "22023");
     });
 

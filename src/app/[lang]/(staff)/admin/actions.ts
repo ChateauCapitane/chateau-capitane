@@ -1,14 +1,15 @@
 "use server";
 
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { site } from "@/lib/data/site";
 import { endSession, saveSession } from "@/lib/server/auth/session";
 import {
-  checkLoginLimit, passwordProblem, resolveStaff, signInWithPassword, signOut, updatePassword, verifyEmailLink,
+  checkLoginLimit, isStaffHost, passwordProblem, resolveStaff, signInWithPassword, signOut, updatePassword, verifyEmailLink,
   type Session,
 } from "@/lib/server/auth/staff-auth";
 import { getPersistenceConfiguration, type Configuration } from "@/lib/server/inquiries/persistence";
+import { liveSecurity } from "@/lib/server/security/record";
 
 // Server Functions are public POST endpoints. Next.js rejects calls whose Origin differs from the host (CSRF).
 export type FormState = { error: string } | undefined;
@@ -28,6 +29,8 @@ async function admit(configuration: Configuration, session: Session, refusal: st
   if (staff.kind === "unavailable") return { error: UNAVAILABLE };
   if (staff.kind !== "ok") {
     await signOut(configuration, session.accessToken);
+    // A real sign-in by someone who is not staff (ADR-0004, rule R3).
+    if (staff.kind === "denied") await liveSecurity.event({ headers: await headers() }, "staff_denied", configuration);
     return { error: refusal };
   }
   await saveSession(session);
@@ -36,15 +39,24 @@ async function admit(configuration: Configuration, session: Session, refusal: st
 
 /** Counts one attempt (sign-in or email link) for the client network; returns an error to show, if any. */
 async function attemptLimit(configuration: Configuration): Promise<FormState> {
-  const limit = await checkLoginLimit({ headers: await headers() }, configuration);
+  const request = { headers: await headers() };
+  const tooMany = (seconds: number): FormState => {
+    const minutes = Math.ceil(seconds / 60);
+    return { error: `Too many attempts. Try again in ${minutes} ${minutes === 1 ? "minute" : "minutes"}.` };
+  };
+  // An owner-approved block (ADR-0004) gets the normal "too many attempts" reply, never a different one.
+  const gate = await liveSecurity.gate(request, "login", configuration);
+  if (gate.kind === "blocked") return tooMany(gate.retryAfter);
+  const limit = await checkLoginLimit(request, configuration);
   if (limit.kind === "unavailable") return { error: UNAVAILABLE };
   if (limit.kind === "limited") {
-    const minutes = Math.ceil(limit.retryAfter / 60);
-    return { error: `Too many attempts. Try again in ${minutes} ${minutes === 1 ? "minute" : "minutes"}.` };
+    await liveSecurity.event(request, "login_limited", configuration);
+    return tooMany(limit.retryAfter);
   }
 }
 
 export async function login(_state: FormState, form: FormData): Promise<FormState> {
+  if (!isStaffHost((await headers()).get("host"))) notFound();
   const email = field(form, "email", 254).trim();
   const password = field(form, "password", 1024);
   if (!email.includes("@") || !password) return { error: REFUSED };
@@ -53,7 +65,10 @@ export async function login(_state: FormState, form: FormData): Promise<FormStat
   const limited = await attemptLimit(configuration);
   if (limited) return limited;
   const session = await signInWithPassword(configuration, email, password);
-  if (session.kind === "invalid") return { error: REFUSED };
+  if (session.kind === "invalid") {
+    await liveSecurity.event({ headers: await headers() }, "login_failed", configuration);
+    return { error: REFUSED };
+  }
   if (session.kind === "unavailable") return { error: UNAVAILABLE };
   return admit(configuration, session.value, REFUSED);
 }
@@ -62,6 +77,7 @@ export async function login(_state: FormState, form: FormData): Promise<FormStat
  * single-use token, so mail scanners that pre-open links cannot consume it.
  */
 export async function setPasswordFromLink(_state: FormState, form: FormData): Promise<FormState> {
+  if (!isStaffHost((await headers()).get("host"))) notFound();
   const type = field(form, "type", 16);
   const tokenHash = field(form, "token_hash", 512);
   const password = field(form, "password", 1024);
@@ -88,6 +104,7 @@ export async function setPasswordFromLink(_state: FormState, form: FormData): Pr
 }
 
 export async function logout(): Promise<void> {
+  if (!isStaffHost((await headers()).get("host"))) notFound();
   await endSession();
   redirect("/admin/login?reason=logged-out");
 }

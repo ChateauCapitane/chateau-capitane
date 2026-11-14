@@ -1,6 +1,7 @@
 import { getPersistenceConfiguration } from "@/lib/server/inquiries/persistence";
 import { hasCronSecret, requestLogger } from "@/lib/server/ops";
 import { runNotificationWorker } from "@/lib/server/inquiries/notification-worker";
+import { recordBadBearer } from "@/lib/server/security/record";
 
 // Below the worker lease (180s) so a killed run never overlaps its own lease.
 export const maxDuration = 150;
@@ -11,7 +12,10 @@ function reply(status: number, body: Record<string, unknown>) {
 
 /** Vercel Cron sends `Authorization: Bearer $CRON_SECRET`. Scheduled every minute in vercel.json. */
 export async function GET(request: Request) {
-  if (!hasCronSecret(request)) return reply(401, { error: "Unauthorized" });
+  if (!hasCronSecret(request)) {
+    await recordBadBearer(request);
+    return reply(401, { error: "Unauthorized" });
+  }
   const configuration = getPersistenceConfiguration();
   const resendApiKey = process.env.RESEND_API_KEY?.trim();
   if (!configuration || !resendApiKey) return reply(503, { error: "Worker is not configured." });

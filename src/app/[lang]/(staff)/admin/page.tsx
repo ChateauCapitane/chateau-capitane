@@ -1,4 +1,4 @@
-import { logout } from "@/app/[lang]/admin/actions";
+import { logout } from "@/app/[lang]/(staff)/admin/actions";
 import { ctaClassName } from "@/components/ui/cta-class";
 import { CtaLink } from "@/components/ui/cta-link";
 import { PageHeader } from "@/components/ui/page-header";
@@ -17,6 +17,7 @@ export default async function AdminPage() {
       <div className="mt-10 flex flex-wrap gap-4">
         <CtaLink href="/admin/inquiries">Open inquiries</CtaLink>
         <CtaLink href="/admin/content" variant="secondary">Website content</CtaLink>
+        {staff.role === "owner" ? <CtaLink href="/admin/security" variant="secondary">Security</CtaLink> : null}
         <form action={logout}>
           <button type="submit" className={ctaClassName("secondary")}>Sign out</button>
         </form>

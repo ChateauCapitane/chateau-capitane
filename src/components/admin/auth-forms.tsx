@@ -2,7 +2,7 @@
 
 import { useActionState, type ReactNode } from "react";
 
-import { login, setPasswordFromLink, type FormState } from "@/app/[lang]/admin/actions";
+import { login, setPasswordFromLink, type FormState } from "@/app/[lang]/(staff)/admin/actions";
 import { ctaClassName } from "@/components/ui/cta-class";
 import { fieldClasses, labelClasses } from "@/components/ui/styles";
 

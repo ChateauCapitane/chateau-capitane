@@ -8,7 +8,7 @@ import ts from "typescript";
 function load(path, imports) {
   const { outputText } = ts.transpileModule(readFileSync(path, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } });
-  const context = { exports: {}, console, JSON, Response,
+  const context = { exports: {}, console, JSON, Response, process: { env: {} },
     require: (name) => { assert.ok(Object.hasOwn(imports, name), `Unexpected dependency: ${name}`); return imports[name]; } };
   new Script(outputText).runInNewContext(context);
   return context.exports;
@@ -25,6 +25,15 @@ test("cron secret: exact bearer only, and a short or missing secret never matche
   assert.equal(ops.hasCronSecret(request(), { CRON_SECRET: secret }), false);
   assert.equal(ops.hasCronSecret(request("Bearer short"), { CRON_SECRET: "short" }), false);
   assert.equal(ops.hasCronSecret(request("Bearer "), {}), false);
+});
+
+test("health token: exact bearer only, never the cron secret, short or unset never matches", () => {
+  assert.equal(ops.hasHealthToken(request(`Bearer ${secret}`), { HEALTH_TOKEN: secret }), true);
+  assert.equal(ops.hasHealthToken(request(`Bearer ${secret}`), { CRON_SECRET: secret }), false);
+  assert.equal(ops.hasHealthToken(request(`Bearer ${secret}x`), { HEALTH_TOKEN: secret }), false);
+  assert.equal(ops.hasHealthToken(request("Bearer short"), { HEALTH_TOKEN: "short" }), false);
+  assert.equal(ops.hasHealthToken(request("Bearer "), {}), false);
+  assert.equal(ops.hasCronSecret(request(`Bearer ${secret}`), { HEALTH_TOKEN: secret }), false);
 });
 
 test("problems: healthy is empty; stale queue, failed, uncertain, delivery and backlog are named", () => {
@@ -46,4 +55,16 @@ test("readiness: down without storage or on a bad answer, attention on problems,
   const stale = await ops.readiness(cfg, async () => ({ ...healthy, oldestDueJobSeconds: 9999 }));
   assert.equal(stale.status, "attention");
   assert.deepEqual([...stale.problems], ["notification_queue_stale"]);
+});
+
+test("readiness: production without ADMIN_HOST is staff_host_unset; set, blank-free or non-production is not", async () => {
+  const cfg = { url: "https://x.example", secretKey: "sb_secret_x" };
+  const run = (env) => ops.readiness(cfg, async () => healthy, env);
+  const bad = await run({ VERCEL_ENV: "production" });
+  assert.equal(bad.status, "attention");
+  assert.deepEqual([...bad.problems], ["staff_host_unset"]);
+  assert.deepEqual([...(await run({ VERCEL_ENV: "production", ADMIN_HOST: "   " })).problems], ["staff_host_unset"]);
+  assert.deepEqual([...(await run({ VERCEL_ENV: "production", ADMIN_HOST: "admin.example.test" })).problems], []);
+  assert.equal((await run({ VERCEL_ENV: "preview" })).status, "ok");
+  assert.equal((await run({})).status, "ok");
 });

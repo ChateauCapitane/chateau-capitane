@@ -1,15 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Albert_Sans, Bodoni_Moda } from "next/font/google";
+import type { ReactNode } from "react";
 
-import { ClickTracker } from "@/components/layout/click-tracker";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
-import { InkindPopup } from "@/components/layout/inkind-popup";
 import { site } from "@/lib/data/site";
 import { getDictionary } from "@/lib/i18n/dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { locales } from "@/lib/i18n/locales";
-import "../globals.css";
+import "@/app/globals.css";
 
 const albertSans = Albert_Sans({
   variable: "--font-albert-sans",
@@ -48,7 +47,12 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
+/**
+ * The page shell shared by the two root layouts (ADR-0005): the public one passes the third-party and
+ * tracking scripts as `scripts`; the staff one passes none. Two root layouts make every move between
+ * /admin and a public page a full page load, so a script can never outlive that move.
+ */
+export async function Document({ children, scripts }: { children: ReactNode; scripts?: ReactNode }) {
   const locale = await getLocale();
   const t = getDictionary(locale);
   return (
@@ -68,8 +72,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
           {children}
         </main>
         <Footer />
-        <InkindPopup />
-        <ClickTracker />
+        {scripts}
       </body>
     </html>
   );

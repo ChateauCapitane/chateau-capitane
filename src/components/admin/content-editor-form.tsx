@@ -2,7 +2,7 @@
 
 import { startTransition, useActionState, type ReactNode } from "react";
 
-import { saveSection } from "@/app/[lang]/admin/content/actions";
+import { saveSection } from "@/app/[lang]/(staff)/admin/content/actions";
 import { ctaClassName } from "@/components/ui/cta-class";
 
 /** Submits without React's automatic form reset, so a refused save keeps every typed edit on screen.

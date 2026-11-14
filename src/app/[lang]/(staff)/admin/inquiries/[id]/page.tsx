@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { addNote, changeStatus } from "@/app/[lang]/admin/inquiries/actions";
+import { addNote, changeStatus } from "@/app/[lang]/(staff)/admin/inquiries/actions";
 import { ctaClassName } from "@/components/ui/cta-class";
 import { PageHeader } from "@/components/ui/page-header";
 import { linkClasses } from "@/components/ui/styles";
@@ -52,7 +52,7 @@ export default async function InquiryPage({ params, searchParams }: PageProps<"/
   const message = typeof notice === "string" ? notices[notice] : undefined;
   const details: [string, React.ReactNode][] = [
     ["Received", formatTime(inquiry.createdAt)],
-    ["Email", <a key="e" href={`mailto:${inquiry.email}`} className={linkClasses}>{inquiry.email}</a>],
+    ["Email", <a key="e" href={`mailto:${encodeURIComponent(inquiry.email)}`} className={linkClasses}>{inquiry.email}</a>],
     ["Phone", inquiry.phone ? <a key="p" href={`tel:${inquiry.phone.replace(/[^\d+]/g, "")}`} className={linkClasses}>{inquiry.phone}</a> : "Not provided"],
     ["Kind", inquiry.kind === "event" ? "Private event" : "General message"],
     ...(inquiry.kind === "event" ? [["Package requested", inquiry.eventPackage ?? "Not chosen yet"] as [string, string]] : []),

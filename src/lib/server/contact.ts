@@ -2,6 +2,7 @@ import type { BanquetTier } from "@/lib/data/private-events";
 import { parseContactInput } from "./inquiries/contact-input";
 import type { checkContactLimit } from "./inquiries/abuse-limit";
 import type { Configuration, recordContactInquiry } from "./inquiries/persistence";
+import type { Security } from "./security/record";
 
 type ContactConfiguration = { persistence: Configuration | null; from?: string; to: string };
 
@@ -12,6 +13,8 @@ export type ContactDependencies = {
   logError: (code: string) => void;
   /** Packages guests can ask about; defaults to the built-in list. */
   packages?: () => Promise<readonly BanquetTier[]>;
+  /** Security monitoring (ADR-0004): blocks, the contact pause and event counts. Optional so tests stay small. */
+  security?: Security;
 };
 
 function reply(status: number, body: Record<string, unknown>, headers: Record<string, string> = {}) {
@@ -31,7 +34,10 @@ export async function handleContact(request: Request, dependencies: ContactDepen
   }
   if (input.kind === "invalid") return reply(input.status, { error: input.error });
   // Same reply as a recorded inquiry so bots cannot tell they were discarded.
-  if (input.kind === "discard") return reply(202, { ok: true });
+  if (input.kind === "discard") {
+    await dependencies.security?.event(request, "contact_honeypot");
+    return reply(202, { ok: true });
+  }
   const configuration = dependencies.getConfiguration();
   const from = configuration.from?.trim();
   const to = configuration.to.trim();
@@ -39,10 +45,20 @@ export async function handleContact(request: Request, dependencies: ContactDepen
     dependencies.logError("contact_not_configured");
     return reply(503, { error: "The form is unavailable right now." });
   }
+  // An owner-approved block or pause (ADR-0004) answers before the limiter counts anything.
+  const gate = await dependencies.security?.gate(request, "contact", configuration.persistence);
+  if (gate?.kind === "blocked") {
+    return reply(429, { error: "Too many messages right now. Please try again later or call us." },
+      { "Retry-After": String(gate.retryAfter) });
+  }
+  if (gate?.kind === "paused") {
+    return reply(503, { error: "The form is paused for a while. Please call us instead." });
+  }
   // After the cheap local checks above; before any storage write.
   const limit = await dependencies.limit(request, input.submissionKey, configuration.persistence);
   if (limit.kind === "limited") {
     dependencies.logError("contact_rate_limited");
+    await dependencies.security?.event(request, "contact_limited", configuration.persistence);
     return reply(429, { error: "Too many messages right now. Please try again later or call us." },
       { "Retry-After": String(limit.retryAfter) });
   }

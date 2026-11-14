@@ -20,6 +20,13 @@ export const PASSWORD = Object.freeze({ minCharacters: 12, maxBytes: 72 });
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Only same-site admin paths are accepted as a return address (no open redirects). */
+/** ADR-0005: with ADMIN_HOST set, staff code runs only for requests addressed to that host (same rule as src/proxy.ts).
+ * Unset or blank = one host serves both (local, tests). */
+export function isStaffHost(host: string | null | undefined, env: NodeJS.ProcessEnv = process.env): boolean {
+  const adminHost = env.ADMIN_HOST?.trim().toLowerCase();
+  return !adminHost || host?.toLowerCase() === adminHost;
+}
+
 export function safeAdminPath(value: unknown): string {
   return typeof value === "string" && /^\/admin(?:\/[a-z0-9-]+)*$/.test(value) ? value : "/admin";
 }

@@ -1,7 +1,8 @@
 import { getPrivateEventTiers, packageLabel, type BanquetTier } from "@/lib/data/private-events";
 
 const MAX_BODY_BYTES = 32 * 1024;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// No ? or &: an address is never a mailto: query (staff open it as a link), so they only ever mean abuse.
+const EMAIL_PATTERN = /^[^\s@?&]+@[^\s@?&]+\.[^\s@?&]+$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const GUESTS_PATTERN = /^[1-9]\d{0,3}$/;
 const SUBMISSION_KEY_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

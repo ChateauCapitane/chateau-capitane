@@ -2,18 +2,22 @@ import "server-only";
 import { createHmac } from "node:crypto";
 import { clientNetwork, parseLimitResult, type LimitResult } from "./inquiries/abuse-limit";
 import { callRpc, readBounded, type Configuration } from "./inquiries/persistence";
+import type { Security } from "./security/record";
 
 export const TRACK_TARGETS = ["book", "call"] as const;
 export const TRACK_LANGS = ["en", "ru"] as const;
 export const TRACK_MAX_BYTES = 256;
-/** Starting thresholds: a guest taps a handful of times a day. Per client network, fail closed. */
-export const TRACK_LIMIT = Object.freeze({ limit: 30, seconds: 10 * 60 });
+/** Starting thresholds: a guest taps a handful of times a day. Per client network, plus one site-wide cap
+ * in the same window (audit SEC-08) so rotating networks cannot inflate the counts. Fail closed. */
+export const TRACK_LIMIT = Object.freeze({ limit: 30, seconds: 10 * 60, globalLimit: 600 });
 
 export type TrackDependencies = {
   configuration: () => Configuration | null;
   limit: (request: Request, configuration: Configuration) => Promise<LimitResult>;
   record: (configuration: Configuration, target: string, lang: string) => Promise<boolean>;
   logError: (code: string) => void;
+  /** Security monitoring (ADR-0004): blocks and event counts. Optional so tests stay small. */
+  security?: Security;
 };
 
 /** Always 204, recorded or not, so the page learns nothing and a beacon never shows an error. */
@@ -33,8 +37,14 @@ export async function handleTrack(request: Request, dependencies: TrackDependenc
   if (Object.keys(extra).length > 0 || !TRACK_TARGETS.includes(target as never) || !TRACK_LANGS.includes(lang as never)) return done();
   const configuration = dependencies.configuration();
   if (!configuration) { dependencies.logError("track_not_configured"); return done(); }
+  // A blocked network is dropped quietly, like a limited one.
+  if ((await dependencies.security?.gate(request, "track", configuration))?.kind === "blocked") return done();
   const limit = await dependencies.limit(request, configuration);
-  if (limit.kind === "limited") { dependencies.logError("track_rate_limited"); return done(); }
+  if (limit.kind === "limited") {
+    dependencies.logError("track_rate_limited");
+    await dependencies.security?.event(request, "track_limited", configuration);
+    return done();
+  }
   // Fail closed: while the shared limiter is unreachable the tap is dropped, never counted unlimited.
   if (limit.kind === "unavailable") { dependencies.logError("track_limiter_unavailable"); return done(); }
   if (!(await dependencies.record(configuration, target as string, lang as string))) dependencies.logError("track_storage_unavailable");
@@ -46,7 +56,8 @@ export async function checkTrackLimit(request: Request, configuration: Configura
   const subject = createHmac("sha256", configuration.secretKey)
     .update(`track-limit:${clientNetwork(request, options.env)}`).digest("hex");
   const result = await callRpc(configuration, "check_track_limit",
-    { p_subject: subject, p_limit: TRACK_LIMIT.limit, p_seconds: TRACK_LIMIT.seconds }, 256, options.fetch);
+    { p_subject: subject, p_limit: TRACK_LIMIT.limit, p_seconds: TRACK_LIMIT.seconds, p_global_limit: TRACK_LIMIT.globalLimit },
+    256, options.fetch);
   return parseLimitResult(result);
 }
 

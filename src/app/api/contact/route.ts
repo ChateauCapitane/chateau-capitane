@@ -4,6 +4,7 @@ import { getSiteContent } from "@/lib/server/content/content";
 import { requestLogger } from "@/lib/server/ops";
 import { checkContactLimit } from "@/lib/server/inquiries/abuse-limit";
 import { getPersistenceConfiguration, recordContactInquiry } from "@/lib/server/inquiries/persistence";
+import { liveSecurity } from "@/lib/server/security/record";
 
 /** Keeps configuration and storage server-side, with settings read per request. */
 export async function POST(request: Request) {
@@ -17,5 +18,6 @@ export async function POST(request: Request) {
     record: recordContactInquiry,
     logError: requestLogger("contact_intake", request),
     packages: async () => (await getSiteContent()).packages,
+    security: liveSecurity,
   });
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { publish, restore } from "@/app/[lang]/admin/content/actions";
+import { publish, restore } from "@/app/[lang]/(staff)/admin/content/actions";
 import { ctaClassName } from "@/components/ui/cta-class";
 import { PageHeader } from "@/components/ui/page-header";
 import { linkClasses } from "@/components/ui/styles";

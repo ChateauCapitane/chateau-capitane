@@ -17,6 +17,9 @@ const ASPECT_RATIOS: Record<(typeof PHOTO_ASPECTS)[number], number> = {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 export const isMediaId = (value: string) => UUID.test(value);
 
+/** The file is not a photo of an allowed type (wrong format or undecodable); counted for rule R7 (ADR-0004). */
+export class NotAPhotoError extends ContentError {}
+
 export type ProcessedPhoto = { data: Buffer; width: number; height: number; aspect: string };
 
 /** Decodes an upload as a real JPEG, PNG or WebP, applies its rotation, shrinks it to 2000 px and
@@ -28,7 +31,7 @@ export async function processPhoto(bytes: Uint8Array): Promise<ProcessedPhoto> {
   try {
     const image = sharp(bytes, { limitInputPixels: MAX_PIXELS, failOn: "error" });
     const { format, width = 0, height = 0 } = await image.metadata();
-    if (format !== "jpeg" && format !== "png" && format !== "webp") throw new ContentError("Photos must be JPEG, PNG or WebP files.");
+    if (format !== "jpeg" && format !== "png" && format !== "webp") throw new NotAPhotoError("Photos must be JPEG, PNG or WebP files.");
     if (Math.min(width, height) < 400) throw new ContentError("That photo is too small. Use one at least 400 pixels on its shorter side.");
     const { data, info } = await image.rotate().resize({ width: 2000, height: 2000, fit: "inside", withoutEnlargement: true })
       .webp({ quality: 80 }).toBuffer({ resolveWithObject: true });
@@ -40,7 +43,7 @@ export async function processPhoto(bytes: Uint8Array): Promise<ProcessedPhoto> {
     return { data, width: info.width, height: info.height, aspect };
   } catch (error) {
     if (error instanceof ContentError) throw error;
-    throw new ContentError("That file could not be read as a photo. Use a JPEG, PNG or WebP file.");
+    throw new NotAPhotoError("That file could not be read as a photo. Use a JPEG, PNG or WebP file.");
   }
 }
 

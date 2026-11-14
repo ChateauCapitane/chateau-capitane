@@ -1,6 +1,7 @@
 "use server";
 
 import { updateTag } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/server/auth/session";
 import {
@@ -8,8 +9,9 @@ import {
 } from "@/lib/server/content/content";
 import { ContentError, validateDocument } from "@/lib/server/content/document";
 import { applySection, BLANK_PHOTOS, findSection, photoUploads, type StoredPhoto } from "@/lib/server/content/editor";
-import { addMedia, processPhoto } from "@/lib/server/content/media";
+import { addMedia, NotAPhotoError, processPhoto } from "@/lib/server/content/media";
 import { getPersistenceConfiguration } from "@/lib/server/inquiries/persistence";
+import { liveSecurity } from "@/lib/server/security/record";
 
 // Server Functions are public POST endpoints: each re-checks staff access and validates every field.
 export type SaveState = { error: string } | undefined;
@@ -45,7 +47,14 @@ export async function saveSection(_state: SaveState, form: FormData): Promise<Sa
       const uploads = photoUploads(form, current.gallery[section.index].photos.length + BLANK_PHOTOS);
       applySection(current, section, form, new Map(uploads.map(({ row, date, url }) => [row, { media: NOT_STORED, aspect: "aspect-4/3", date, url }])));
       const processed = [];
-      for (const { file } of uploads) processed.push(await processPhoto(new Uint8Array(await file.arrayBuffer())));
+      for (const { file } of uploads) {
+        try { processed.push(await processPhoto(new Uint8Array(await file.arrayBuffer()))); }
+        catch (error) {
+          // A file that is not a real photo of an allowed type is counted (rule R7); size and shape refusals are not.
+          if (error instanceof NotAPhotoError) await liveSecurity.event({ headers: await headers() }, "upload_refused", configuration);
+          throw error;
+        }
+      }
       for (const [index, { row, date, url }] of uploads.entries()) {
         const media = await addMedia(configuration, staff, processed[index], { date, url });
         if (media === "full") return { error: "The photo library is full (500 photos). Ask the site owner to clear unused photos." };
