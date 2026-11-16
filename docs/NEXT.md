@@ -1,25 +1,24 @@
 # NEXT: read this first, then AGENTS.md
 
 Rewrite, do not append. Under 40 lines; history is in git. No merge or push status here (AGENTS.md, Working with Anthony).
-**Updated:** 2026-11-14. Branch `fix/security-audit` holds the predeployment security audit and its fixes on top of
-`main` (click counts, ADR-0003). Four sessions (`.claude/rules/team-roles.md`); this stretch ran with
-`herdr chateau builder`. Use the name ListAgents shows; `/pair`'s peer id may not be reachable.
-**Return gate: away** (`docs/manual-checks.md`).
+**Updated:** 2026-11-14. Branch `fix/gallery-menu` holds sharp gallery photos, a menu price check, the staff
+guide and a UI audit, on top of the security audit on `main`. Four sessions (`.claude/rules/team-roles.md`);
+use the names ListAgents shows. **Return gate: away** (`docs/manual-checks.md`).
 
 ## On this branch
-- Audit: `docs/security-audit.md` (scope, threat model, SEC-01 to SEC-10, legal matrix, section 8 status and decision).
-- ADR-0004 security monitoring and response (events, detection cron, owner page `/admin/security`, incident API),
-  ADR-0005 security headers and staff isolation (separate `(site)` / `(staff)` root layouts, `ADMIN_HOST`).
-- Migration `202611140001_security_monitoring.sql`; new routes `/api/cron/security`, `/api/security/*`.
-- Docs: `docs/incident-response.md`, `docs/privacy-notice-facts.md`, release checklist and backend operations updated.
-- Reviews: code review, security audit (opus) and re-audit (opus) all PASS WITH CONCERNS; their fixes are in.
+- 11 sharp, text-free restaurant-posted Instagram photos (`docs/photo-sources.md`, rule by Anthony); 6 blurry ones
+  deleted. Home signature dishes and the schema images use the sharp ones.
+- The public gallery hides slots with no photo and empty groups ("The rooms" is hidden); the staff editor still
+  shows empty slots. Gallery intro and signature intro reworded to match.
+- `site.url` is `https://www.chateaudecapitaine.com` (the old domain did not resolve).
+- Menu: all 174 prices match chateaudecapitaine.com; 4 owner questions in BACKLOG.
+- `docs/staff-guide.md` (sign in, edit, publish; linked from README). `docs/ui-audit.md` + screenshots (report only).
 
 ## Next, in order
-1. Nothing in code is pending for this audit. Start the next stretch with `/go`.
-2. SEC-09 privacy notice: owner or counsel, facts in `docs/privacy-notice-facts.md`. Blocks public launch.
-3. B12 staging and release, blocked on the owner's accounts ([release checklist](release-checklist.md)). Staging
-   runs the Security row (headers, staff host, SHAs), SEC-10, B02c and the incident checks.
-4. Owner inputs from `docs/manual-checks.md` as they arrive.
+1. UI audit fixes in the BACKLOG order (H1 320px overflow and RU menu button first). Start with `/go`.
+2. Owner: answer the 4 menu questions; supply real room and banquet photos.
+3. SEC-09 privacy notice: owner or counsel, facts in `docs/privacy-notice-facts.md`. Blocks public launch.
+4. B12 staging and release, blocked on the owner's accounts ([release checklist](release-checklist.md)).
 
 ## Workflow
 - Gates: `npm run gate -- verify build db` (space-separated). UI: Playwright MCP at 375/768/1280, EN and `/ru`.

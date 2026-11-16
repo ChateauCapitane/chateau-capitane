@@ -27,6 +27,18 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
 - Gallery: reordering, new sections, crop control; unused photos are cleaned up by hand; removed photos can linger about 2 hours in caches.
 - Russian: staff can't enter Russian text, so new staff-edited dishes show in English on `/ru` until added to `src/lib/i18n/content-ru.ts`.
 - Lint: unused `eslint-disable` directive at `src/app/apple-icon.tsx:16`.
+- UI audit fixes (2026-11-14, [ui-audit.md](ui-audit.md), report only so far). Suggested order: H1 320px sideways
+  scroll and the RU menu button cut off → M1+M2 contact form focus, success/error look alike, error names no field →
+  M4 staff sign-in shows the public header and a RU link to a 404 → quick wins (L1 404 title, L2 typo, L3 "Позвонить",
+  em dashes in EN copy; RU dashes need a rule decision) → L4 image `sizes`. S1-S4 suggestions and an inKind popup check
+  on a preview deploy.
+- Menu, owner to confirm (2026-11-14): lunch special $25 on the website vs $25.99 in the Instagram bio; our "$100
+  minimum charge **per person** Fri and Sat" vs the restaurant's "$100 minimum charge for Fri & Sat"; pelmeni/vareniki
+  shown "$16.00 Each" on the restaurant's menu (we show $16, likely a typo there); the restaurant's "Special Garnishes
+  $6" list is not on our menu. All 174 other prices match chateaudecapitaine.com.
+- Gallery photos: no sharp, text-free photos of the dining room, bar or banquet tables exist as stills (only in reels),
+  so "The rooms" is hidden and "Private events" has one photo (a lonely row at 768px and up). Needs real room and
+  banquet photos from the owner, or stills from the restaurant's reels.
 
 ## Workflow (ADR-0001)
 

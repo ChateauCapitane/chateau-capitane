@@ -10,6 +10,18 @@ own thinking (resume, interviews). The rules for each entry:
 Newest first. Written by the planner at every READY TO SHIP and whenever Anthony gives a new report or decision.
 Earlier history (B01-B12, SEO, Russian version) is in git (`git log -p -- next.md`) and was not backfilled.
 
+## 2026-11-14: gallery, menu prices, staff guide and a UI audit
+- **Found:** clicking through the local site, he saw the gallery looking empty and the photos blurry. He wanted the
+  menu prices proven against the real ones, plain steps for staff to sign in and change photos and text, and a full
+  UI audit to a brief he supplied.
+- **His thinking:** "1080p" meant clear, not blurry. Photos had to be food and venue only, never flyers or images with
+  text. He widened the sources beyond Instagram and dropped the 2026-only rule when 2026 held almost nothing but
+  flyers. He signed in to Instagram himself so full-size files could be used.
+- **Result (agents):** all 174 menu prices match the restaurant's own site (chateaudecapitaine.com); 4 owner
+  questions logged. The site's address was wrong and is fixed. 11 sharp restaurant-posted photos replace the blurry
+  ones, and empty slots are hidden from guests. `docs/staff-guide.md` and `docs/ui-audit.md` (no critical findings)
+  written. Branch `fix/gallery-menu`. Not committed yet.
+
 ## 2026-11-14: predeployment security audit and its fixes
 - **Found:** before any deployment he wanted the whole app reviewed and audited for security. Midway, one Claude
   account hit its rate limit; he resumed on another account and asked how to continue exactly where it stopped.
