@@ -35,7 +35,8 @@ English is served at the site root and Russian under `/ru` (for example `/menu` 
 | `/testimonials` | `src/app/[lang]/(site)/testimonials/page.tsx` |
 | 404 | `src/app/[lang]/(site)/not-found.tsx` |
 
-Staff pages (`/admin`) stay English only; `/ru/admin` is a 404.
+Staff pages (`/admin`) stay English only; `/ru/admin` is a 404. How staff sign in and change the menu, hours and
+photos, in plain steps: [docs/staff-guide.md](docs/staff-guide.md).
 
 The admin dashboard shows the last 6 months of Book now and Call taps (English / Russian), inquiries and banquet
 requests. Taps are counted first-party in Supabase, with no cookies or personal data (`src/app/api/track/route.ts`,
