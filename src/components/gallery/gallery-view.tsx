@@ -20,7 +20,10 @@ export async function GalleryView({ groups }: { groups: PhotoGroup[] }) {
       />
 
       <div className="mt-16 space-y-20 md:mt-20 md:space-y-24">
-        {groups.map((group) => (
+        {groups
+          .map((group) => ({ ...group, photos: group.photos.filter((photo) => photo.src) }))
+          .filter((group) => group.photos.length > 0)
+          .map((group) => (
           <section key={group.id} id={group.id}>
             <h2 className="font-serif text-3xl leading-tight tracking-tight text-ivory sm:text-4xl">
               {translateContent(locale, group.name)}

@@ -4,7 +4,7 @@ import { getLocale } from "@/lib/i18n/get-locale";
 import { localePath } from "@/lib/i18n/locales";
 import { getLayoutContent } from "@/lib/server/content/content";
 
-const photos = ["entrance-night.jpg", "red-caviar.jpg", "roasted-duck.jpg", "lobster-platter-instagram.jpg"];
+const photos = ["chilean-sea-bass.jpg", "t-bone-steak.jpg", "caviar-service-instagram.jpg", "lobster-platter-instagram.jpg"];
 
 function toSpecification(hours: OpeningHours) {
   return {

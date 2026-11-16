@@ -59,23 +59,23 @@ export const en = {
     },
     signature: {
       eyebrow: "Signature dishes",
-      intro: "Three of Chef Alik’s favorites, still on his son’s menu.",
+      intro: "Three dishes from today’s menu.",
       title: "What the family cooks",
       dishes: [
         {
-          name: "Roasted duck in fruit sauce",
-          note: "Roasted and sauced with dried fruit. It anchors the $140 banquet table too.",
-          photo: "Roasted duck carved on a platter",
+          name: "Chilean Sea Bass with Creamy Polenta",
+          note: "Served on creamy polenta with Brussels sprouts.",
+          photo: "Chilean sea bass on creamy polenta with Brussels sprouts",
         },
         {
           name: "Chalakhach chicken tabaka",
           note: "Chicken pressed flat and pan-fried until the skin crisps.",
-          photo: "Chicken tabaka pressed flat in a pan",
+          photo: "Chicken tabaka with mashed potatoes and pickled red onion",
         },
         {
-          name: "Pickled tomatoes",
-          note: "Russian-style pickled tomatoes, served cold.",
-          photo: "Pickled tomatoes on a serving plate",
+          name: "Salmon Tartare",
+          note: "Topped with red caviar, with avocado, mango and cucumber.",
+          photo: "Salmon tartare with red caviar, avocado, mango and cucumber",
         },
       ],
     },
@@ -178,7 +178,7 @@ export const en = {
   gallery: {
     eyebrow: "Photographs",
     title: "Gallery",
-    intro: "The rooms, the tables we set for parties, and what comes out of the kitchen.",
+    intro: "The tables we set for parties, and what comes out of the kitchen.",
   },
 
   testimonials: {

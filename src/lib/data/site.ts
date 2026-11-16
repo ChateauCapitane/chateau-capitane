@@ -26,7 +26,7 @@ export const site = {
   name: "Château Capitaine",
   shortName: "Château Capitaine",
   /** Placeholder until the production domain is confirmed; every absolute URL derives from this. */
-  url: "https://www.chateaucapitaine.com",
+  url: "https://www.chateaudecapitaine.com",
   tagline: "Continuing a family tradition of excellence",
   description:
     "Russian and seafood restaurant on Coney Island Avenue in Brooklyn: oysters, caviar, grilled fish, pelmeni, a weekday lunch special, and private Russian-style banquets.",

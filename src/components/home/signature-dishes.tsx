@@ -5,9 +5,9 @@ import { getDictionary } from "@/lib/i18n/dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 
 const photos = [
-  "/photos/roasted-duck.jpg",
+  "/photos/chilean-sea-bass.jpg",
   "/photos/chicken-tabaka.jpg",
-  "/photos/mixed-pickles.jpg",
+  "/photos/salmon-tartare.jpg",
 ];
 
 export async function SignatureDishes() {

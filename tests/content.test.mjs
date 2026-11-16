@@ -185,12 +185,12 @@ test("editor: gallery edits keep, replace, remove and add photos without touchin
   const stored = new Map([[0, { media: mediaId, aspect: "aspect-4/3", date: "2026-03-02", url: "https://example.com/p" }]]);
   const next = editor.applySection(document, section, form([...entries, [`photo_${group.photos.length}_alt`, "Added"]]), stored);
   const photos = next.gallery[index].photos;
-  // Row 0 was replaced by an upload, row 1 got a caption, the entrance keeps its built-in file, the empty trailing slot adds nothing.
+  // Row 0 was replaced by an upload, row 1 got a caption, the entrance stays a placeholder, the empty trailing slot adds nothing.
   assert.deepEqual(plain([photos[0].id, photos[0].media, photos[0].aspect]), ["dining-room-full", mediaId, "aspect-4/3"]);
   assert.equal(photos[0].src, undefined);
   assert.equal(photos[0].feature, true);
   assert.equal(photos[1].caption, "The bar");
-  assert.equal(photos.find((p) => p.id === "entrance").src, "/photos/entrance-night.jpg");
+  assert.equal(photos.find((p) => p.id === "entrance").src, undefined);
   assert.equal(photos.length, group.photos.length);
   assert.deepEqual(plain(next.menuCategories), plain(document.menuCategories));
   // A new photo needs its upload; removal drops an entry; a missing description is refused.

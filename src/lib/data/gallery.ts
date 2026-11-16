@@ -48,9 +48,7 @@ const groups: PhotoGroup[] = [
       {
         id: "entrance",
         alt: "The entrance on Coney Island Avenue at dusk",
-        // Portrait: the source photo is a tall storefront shot, not shot for a 4:3 crop.
         aspect: "aspect-3/4",
-        src: "/photos/entrance-night.jpg",
       },
     ],
   },
@@ -60,6 +58,12 @@ const groups: PhotoGroup[] = [
     description:
       "Banquet tables laid for birthdays, anniversaries, and family gatherings.",
     photos: [
+      {
+        id: "banquet-platters",
+        alt: "Family-style platters served at a banquet",
+        aspect: "aspect-square",
+        src: "/photos/banquet-platters.jpg",
+      },
       {
         id: "banquet-long-table",
         alt: "A long banquet table laid with the full cold course",
@@ -100,22 +104,22 @@ const groups: PhotoGroup[] = [
         src: "/photos/lobster-platter-instagram.jpg",
       },
       {
-        id: "pickled-tomatoes",
-        alt: "House-cured pickled tomatoes on a serving plate",
+        id: "chilean-sea-bass",
+        alt: "Chilean sea bass",
         aspect: "aspect-square",
-        src: "/photos/mixed-pickles.jpg",
+        src: "/photos/chilean-sea-bass.jpg",
       },
       {
         id: "chicken-tabaka",
-        alt: "Chalakhach chicken tabaka pressed flat and crisped",
+        alt: "Chalakhach chicken tabaka with mashed potatoes and pickled red onion",
         aspect: "aspect-square",
         src: "/photos/chicken-tabaka.jpg",
       },
       {
-        id: "roasted-duck",
-        alt: "Roasted duck in fruit sauce, carved on a platter",
+        id: "beef-tartare",
+        alt: "Beef tartare",
         aspect: "aspect-square",
-        src: "/photos/roasted-duck.jpg",
+        src: "/photos/beef-tartare.jpg",
       },
       {
         id: "borscht",
@@ -124,10 +128,10 @@ const groups: PhotoGroup[] = [
         src: "/photos/borscht.jpg",
       },
       {
-        id: "kebabs",
-        alt: "Mixed kebabs coming off the grill",
-        aspect: "aspect-4/3",
-        src: "/photos/kebabs-grill.jpg",
+        id: "lulya-kebab",
+        alt: "Lyulya kebab with grilled vegetables and sauce",
+        aspect: "aspect-square",
+        src: "/photos/lulya-kebab.jpg",
       },
       {
         id: "caviar",
@@ -136,18 +140,38 @@ const groups: PhotoGroup[] = [
         src: "/photos/caviar-service-instagram.jpg",
       },
       {
-        id: "tomahawk",
-        alt: "A prime tomahawk steak rested and sliced",
-        aspect: "aspect-4/3",
-        src: "/photos/tomahawk-steak.jpg",
+        id: "mixed-carpaccio",
+        alt: "Mixed carpaccio",
+        aspect: "aspect-square",
+        src: "/photos/mixed-carpaccio.jpg",
       },
       {
-        id: "napoleon-cake",
-        alt: "A slice of Napoleon cake",
-        aspect: "aspect-4/3",
+        id: "t-bone-steak",
+        alt: "Prime T-bone steak with red wine",
+        aspect: "aspect-square",
+        src: "/photos/t-bone-steak.jpg",
+      },
+      {
+        id: "salmon-tartare",
+        alt: "Salmon tartare",
+        aspect: "aspect-square",
+        src: "/photos/salmon-tartare.jpg",
+      },
+      {
+        id: "sesame-tuna",
+        alt: "Sesame tuna",
+        aspect: "aspect-4/5",
+        src: "/photos/sesame-tuna.jpg",
+      },
+      {
+        id: "mushroom-napoleon",
+        alt: "Truffle mushroom Napoleon",
+        aspect: "aspect-4/5",
+        src: "/photos/mushroom-napoleon.jpg",
       },
     ],
   },
+
 ];
 
 /** Aspect-ratio classes a photo may use (uploads pick the nearest). */
