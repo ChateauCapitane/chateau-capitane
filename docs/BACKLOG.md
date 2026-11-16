@@ -32,10 +32,16 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
   M4 staff sign-in shows the public header and a RU link to a 404 → quick wins (L1 404 title, L2 typo, L3 "Позвонить",
   em dashes in EN copy; RU dashes need a rule decision) → L4 image `sizes`. S1-S4 suggestions and an inKind popup check
   on a preview deploy.
-- Menu, owner to confirm (2026-11-14): lunch special $25 on the website vs $25.99 in the Instagram bio; our "$100
-  minimum charge **per person** Fri and Sat" vs the restaurant's "$100 minimum charge for Fri & Sat"; pelmeni/vareniki
-  shown "$16.00 Each" on the restaurant's menu (we show $16, likely a typo there); the restaurant's "Special Garnishes
-  $6" list is not on our menu. All 174 other prices match chateaudecapitaine.com.
+- **Remove the guest inquiry forms** (Anthony approved, 2026-11-16): guests only call or book on OpenTable. Remove
+  the contact form and the Private Events banquet request form, the staff inbox, the notification email cron and
+  Resend; keep every Call button and Book now. Changes an API route contract, cron and deps: ADR first, T5 review.
+  Then update the privacy notice facts and the release checklist (no Resend, no email checks).
+- Owner answers to apply (2026-11-16, from the [launch roadmap](https://claude.ai/artifact/2knxWr3TM1zwZEfhbmiHiJ)):
+  lunch $25 (keep); Fri/Sat $100 minimum is per person (keep); pelmeni/vareniki $16 per plate (keep); add the
+  "Special Garnishes $6" list (angel hair pasta, mushroom couscous, creamy risotto, home potatoes, creamy polenta,
+  Brussels sprouts); neighborhood Gravesend; valet parking; nearest subway Q at Neck Rd; delivery via Uber Eats or by
+  phone; no happy hour; price range $$$; inKind shows on `/ru` and the owner accepted its terms. Still open: dietary
+  dishes, email in schema, ratings, room photos, name spelling, whether inKind works off the final domain.
 - Gallery photos: no sharp, text-free photos of the dining room, bar or banquet tables exist as stills (only in reels),
   so "The rooms" is hidden and "Private events" has one photo (a lonely row at 768px and up). Needs real room and
   banquet photos from the owner, or stills from the restaurant's reels.

@@ -15,9 +15,11 @@ use the names ListAgents shows. **Return gate: away** (`docs/manual-checks.md`).
 - `docs/staff-guide.md` (sign in, edit, publish; linked from README). `docs/ui-audit.md` + screenshots (report only).
 
 ## Next, in order
-1. UI audit fixes in the BACKLOG order (H1 320px overflow and RU menu button first). Start with `/go`.
-2. Owner: answer the 4 menu questions; supply real room and banquet photos.
-3. SEC-09 privacy notice: owner or counsel, facts in `docs/privacy-notice-facts.md`. Blocks public launch.
+1. Remove the guest inquiry forms (Anthony, 2026-11-16; BACKLOG): ADR first, T5 reviews. Start with `/go`.
+2. Apply the owner answers in BACKLOG, then the UI audit fixes (H1 320px overflow and RU menu button first).
+   Anthony's answers live in the [launch roadmap](https://claude.ai/artifact/2knxWr3TM1zwZEfhbmiHiJ); read it with
+   ArtifactData (`answers`, `progress/ticks`).
+3. SEC-09 privacy notice: agents draft from `docs/privacy-notice-facts.md` (updated for no forms), owner approves.
 4. B12 staging and release, blocked on the owner's accounts ([release checklist](release-checklist.md)).
 
 ## Workflow

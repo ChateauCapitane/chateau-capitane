@@ -10,6 +10,15 @@ own thinking (resume, interviews). The rules for each entry:
 Newest first. Written by the planner at every READY TO SHIP and whenever Anthony gives a new report or decision.
 Earlier history (B01-B12, SEO, Russian version) is in git (`git log -p -- next.md`) and was not backfilled.
 
+## 2026-11-16: launch roadmap, owner answers, and calls only
+- **Found:** he wanted one list of everything needed to launch, and a way to answer the open questions there so
+  nothing gets lost between sessions.
+- **His thinking:** he answered the menu, neighborhood, parking, subway, delivery, price-range and inKind questions
+  himself, and decided the site drops its online inquiry forms: guests call or book on OpenTable. Agents draft the
+  privacy notice and the owner approves it.
+- **Result (agents):** a private launch roadmap page with saved answers (7 phases), the answers logged in BACKLOG,
+  form removal queued as the next ADR. Nothing built yet.
+
 ## 2026-11-14: gallery, menu prices, staff guide and a UI audit
 - **Found:** clicking through the local site, he saw the gallery looking empty and the photos blurry. He wanted the
   menu prices proven against the real ones, plain steps for staff to sign in and change photos and text, and a full
