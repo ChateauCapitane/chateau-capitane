@@ -20,7 +20,9 @@ book on OpenTable. Four sessions (`.claude/rules/team-roles.md`); this stretch u
    Anthony's answers live in the [launch roadmap](https://claude.ai/artifact/2knxWr3TM1zwZEfhbmiHiJ); read it with
    ArtifactData (`answers`, `progress/ticks`).
 2. SEC-09 privacy notice: agents draft from `docs/privacy-notice-facts.md` (now no forms), owner approves.
-3. B12 staging and release, blocked on the owner's accounts ([release checklist](release-checklist.md)).
+3. B12 staging and release ([release checklist](release-checklist.md)). Anthony has Supabase, Vercel and GitHub
+   open in Claude in Chrome. The new domain `chateaucapitaine.com` is still to be bought (BACKLOG, Domain); its
+   domain host is needed before launch, not before staging.
 
 ## Workflow
 - Gates: `npm run gate -- verify build db` (space-separated). UI: Playwright MCP at 375/768/1280, EN and `/ru`.

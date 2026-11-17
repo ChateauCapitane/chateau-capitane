@@ -59,7 +59,7 @@ How it runs: a daily Vercel Cron (`/api/cron/retention`, 03:17 UTC) calls `publi
 
 ## Alerts
 
-Owner chose a free uptime monitor that emails the owner (2026-10-10). Setup is manual and needs an account in the owner's name: create an HTTPS monitor for `https://<site>/api/health`, every 5 minutes, add the header `Authorization: Bearer <HEALTH_TOKEN>`, alert when the status is not 200. Not set up (no deployment yet); do it in B12.
+Free uptime monitor (owner, 2026-10-10); its alerts go to Anthony, not the owner (Anthony, 2026-11-16). Setup is manual, account under Anthony's email: create an HTTPS monitor for `https://<site>/api/health`, every 5 minutes, add the header `Authorization: Bearer <HEALTH_TOKEN>`, alert when the status is not 200. Not set up (no deployment yet); do it in B12.
 
 ## Environments
 

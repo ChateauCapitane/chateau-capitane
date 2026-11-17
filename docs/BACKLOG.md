@@ -38,6 +38,10 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
   `webhook_bad_signature` in `record.ts`. The DB check constraints and `security_gate` still accept `contact_*`,
   `contact` and `pause_contact`; a stale comment at `api/health/route.ts:8`. `events.packageLabel` / `packageLabel()`
   may be unused. No live database ever ran, so no `pause_contact` rows can exist.
+- Domain (Anthony, 2026-11-16): the site moves to a new domain, `chateaucapitaine.com`, not bought yet. Once it is
+  bought, the release slice sets `site.url` (`src/lib/data/site.ts:29`) to `https://www.chateaucapitaine.com`, and
+  `ADMIN_HOST` to `admin.chateaucapitaine.com` (the staff address). The restaurant's Gmail and Facebook keep their
+  names.
 - Release: there is no "send a test security alert" button; step 5 of the release checklist waits for a real alert.
 - Owner answers to apply (2026-11-16, from the [launch roadmap](https://claude.ai/artifact/2knxWr3TM1zwZEfhbmiHiJ)):
   lunch $25 (keep); Fri/Sat $100 minimum is per person (keep); pelmeni/vareniki $16 per plate (keep); add the

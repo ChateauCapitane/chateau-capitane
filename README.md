@@ -75,7 +75,7 @@ Server settings (see [supabase/README.md](supabase/README.md) for the database):
 | `HEALTH_TOKEN` | Uptime monitor's bearer for `/api/health` readiness. Random, 16+ characters, different from `CRON_SECRET`. |
 | `ADMIN_HOST` | Optional staff host (e.g. `admin.<domain>`): staff pages are served only there (ADR-0005). Leave unset locally. |
 | `MONITOR_TOKEN` | Bearer for the read-only incident API (`/api/security/incidents`). Random, 16+ characters, different from the other tokens. Unset means the API refuses everyone (ADR-0004). |
-| `SECURITY_ALERT_EMAIL` | Where security alert emails go (needs `RESEND_API_KEY` and `CONTACT_FROM_EMAIL`). Unset: incidents are still recorded, nothing is emailed. |
+| `SECURITY_ALERT_EMAIL` | Where security alert emails go: Anthony's address only, not the owner's (needs `RESEND_API_KEY` and `CONTACT_FROM_EMAIL`). Unset: incidents are still recorded, nothing is emailed. |
 | `SECURITY_ACTIONS_DISABLED` | Emergency stop. Set to `1` and every block stops applying at once, and new ones are refused. |
 
 `npm run verify` runs the mocked unit tests (Node's built-in runner); `npm run test:db` runs the real-database tests.

@@ -99,7 +99,7 @@ needing Anthony) · `escalation_contact` (`SECURITY_ALERT_EMAIL` configured: yes
   handled (or not) by Vercel.
 
 ## Setup the owner must do (B12)
-Vercel Production: `MONITOR_TOKEN` and `HEALTH_TOKEN` (32+ random characters each, different), `SECURITY_ALERT_EMAIL`, `ADMIN_HOST` with its DNS record.
+Vercel Production: `MONITOR_TOKEN` and `HEALTH_TOKEN` (32+ random characters each, different), `SECURITY_ALERT_EMAIL` (Anthony's address; alerts go to him, not the owner, 2026-11-16), `ADMIN_HOST` with its DNS record.
 Uptime monitor on `/api/health` with `Bearer HEALTH_TOKEN`. Cost: $0 beyond the planned Vercel Pro, Supabase Pro and
 Resend free tier (alert emails count toward Resend's free quota).
 

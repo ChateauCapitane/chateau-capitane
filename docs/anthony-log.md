@@ -10,6 +10,16 @@ own thinking (resume, interviews). The rules for each entry:
 Newest first. Written by the planner at every READY TO SHIP and whenever Anthony gives a new report or decision.
 Earlier history (B01-B12, SEO, Russian version) is in git (`git log -p -- next.md`) and was not backfilled.
 
+## 2026-11-16: security alerts come to him
+- **His thinking:** every security alert should go directly to him, not to the owner.
+- **Result:** `SECURITY_ALERT_EMAIL` is set to his address at release (no code change); release checklist, README
+  and incident response updated. Uptime (site down) alerts also go to him.
+
+## 2026-11-16: a new domain
+- **Found:** launch needs a domain the restaurant controls for the new site.
+- **His thinking:** buy a new one, `chateaucapitaine.com`, instead of reusing the old site's domain.
+- **Result:** logged in BACKLOG; `site.url` and the staff host switch in the release slice once it is bought.
+
 ## 2026-11-16: calls and OpenTable only
 - **Found:** the site asked guests to fill in contact and banquet forms, which meant storing guest messages, an inbox
   for staff to watch, and inquiry emails to run.

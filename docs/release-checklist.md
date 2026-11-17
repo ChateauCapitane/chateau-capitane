@@ -1,12 +1,12 @@
 # Staging and release checklist (B12)
 
-Nothing here has been run: no staging project, deployment or live email exists yet. Guests only call or book on OpenTable (ADR-0006); the only email is the security alert to the owner. Do the steps in order; each needs the owner's go-ahead where marked **(owner)**. Use made-up guests only (names like "Test Guest", emails ending `.invalid` until the live-email step).
+Nothing here has been run: no staging project, deployment or live email exists yet. Guests only call or book on OpenTable (ADR-0006); the only email is the security alert, which goes to Anthony, not the owner (Anthony, 2026-11-16). Do the steps in order; each needs the owner's go-ahead where marked **(owner)**. Use made-up guests only (names like "Test Guest", emails ending `.invalid` until the live-email step).
 
 ## 1. Accounts and costs (owner)
 
 - Vercel Pro (the 5-minute security cron is rejected on Hobby) and Supabase Pro, in the company's name, regions `iad1` / `us-east-1`; about $45/month. Details: [provider decision](plans/backend-provider-decision.md).
-- Resend account, the sending domain verified (SPF/DKIM records at the domain host), the owner address that receives security alerts.
-- Free uptime monitor account (owner's email receives alerts).
+- Resend account, the sending domain verified (SPF/DKIM records at the domain host). Security alerts go to Anthony's own address, never the owner's.
+- Free uptime monitor account under Anthony's email (he receives the down alerts, 2026-11-16).
 - Names and emails of the first staff (owner role first).
 
 ## 2. Staging project (synthetic data)
@@ -36,9 +36,9 @@ Also re-run `npm audit --omit=dev` and review the dev-only ESLint advisories bef
 
 1. **Push** the branch (explain: pushing triggers CI and, if the repo is linked to Vercel, a preview build; merging to `main` deploys production automatically).
 2. Create the production Supabase project, apply migrations, add owner and staff.
-3. Vercel Production scope only: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (verified domain), `SECURITY_ALERT_EMAIL`, `CRON_SECRET`, `HEALTH_TOKEN`, `MONITOR_TOKEN`, `ADMIN_HOST` (with its DNS record; **required before staff use the live site**, audit SEC-01). Leave `RETENTION_ENABLED` unset for the first week, then set `1`.
+3. Vercel Production scope only: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (verified domain), `SECURITY_ALERT_EMAIL` (Anthony's address), `CRON_SECRET`, `HEALTH_TOKEN`, `MONITOR_TOKEN`, `ADMIN_HOST` (with its DNS record; **required before staff use the live site**, audit SEC-01). Leave `RETENTION_ENABLED` unset for the first week, then set `1`.
 4. Deploy. Create the production uptime monitor on `/api/health`.
-5. **Live email (owner)**: confirm the first security alert email reaches `SECURITY_ALERT_EMAIL` (there is no test-alert button yet; BACKLOG). Do not book a real table via OpenTable.
+5. **Live email (Anthony)**: confirm the first security alert email reaches Anthony (`SECURITY_ALERT_EMAIL`) (there is no test-alert button yet; BACKLOG). Do not book a real table via OpenTable.
 6. Watch `/api/health` and `/admin/security` for a day.
 
 ## Rollback and reconciliation
