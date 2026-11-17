@@ -15,3 +15,4 @@ Older decisions made before this folder existed live in `docs/plans/` (for examp
 - [ADR-0003. Count Book now and Call taps ourselves, in Supabase](ADR-0003-first-party-click-counts.md)
 - [ADR-0004. Security monitoring, incident records and owner-approved response](ADR-0004-security-monitoring-and-response.md)
 - [ADR-0005. Security headers, staff-area isolation and a separate monitoring token](ADR-0005-security-headers-and-admin-isolation.md)
+- [ADR-0006. Calls and OpenTable only: remove the guest inquiry system](ADR-0006-calls-and-opentable-only.md)
