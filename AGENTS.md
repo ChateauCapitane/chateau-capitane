@@ -14,11 +14,11 @@ Loaded every turn by Claude Code (through `CLAUDE.md`) and Codex. Keep this file
 
 ## Purpose
 
-The website of Château Capitaine, a Russian bar, grill and banquet hall on Coney Island Avenue, Brooklyn. It turns online visitors into guests (OpenTable bookings, calls, inquiries, banquet requests) in English and Russian. It also gives staff a private inbox and lets them publish the menu, hours and photos without a developer. What counts as progress: [docs/vision.md](docs/vision.md).
+The website of Château Capitaine, a Russian bar, grill and banquet hall on Coney Island Avenue, Brooklyn. It turns online visitors into guests (OpenTable bookings and calls; no guest forms, ADR-0006) in English and Russian. It also lets staff publish the menu, hours and photos without a developer. What counts as progress: [docs/vision.md](docs/vision.md).
 
 ## Stack
 
-Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS v4, npm, Node 22. Backend: Supabase PostgreSQL and Auth over REST `fetch` (no SDK), Resend email over `fetch`, Vercel hosting and cron. `sharp` processes photos. Dev only: `embedded-postgres` + `pg` for real-database tests, `svix` to cross-check webhook signatures. Check `package.json` before adding anything.
+Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS v4, npm, Node 22. Backend: Supabase PostgreSQL and Auth over REST `fetch` (no SDK), Resend security-alert email over `fetch`, Vercel hosting and cron. `sharp` processes photos. Dev only: `embedded-postgres` + `pg` for real-database tests. Check `package.json` before adding anything.
 
 ## Commands
 
@@ -39,10 +39,10 @@ Windows PowerShell: use `npm.cmd` / `npx.cmd` if the `.ps1` wrappers are blocked
 | --- | --- |
 | `src/app/[lang]/(site)/` | Public pages (own root layout with inKind and click tracking), English at `/` and Russian at `/ru` (`src/proxy.ts` rewrites) |
 | `src/app/[lang]/(staff)/admin/` | Staff pages at `/admin` (separate root layout, no third-party scripts, ADR-0005; English only; `/ru/admin` is a 404; noindex, cookie session) |
-| `src/app/api/` | Contact intake, cron workers, health, Resend webhook |
+| `src/app/api/` | Click counts, cron workers, health, security incidents API |
 | `src/lib/data/` | Built-in business facts (`site.ts` is the single source), menu, events, gallery |
 | `src/lib/i18n/` | `en.ts`, `ru.ts` (same keys), `content-ru.ts` (menu/banquet translations) |
-| `src/lib/server/` | Server-only: inquiries, auth, content publishing, media, ops |
+| `src/lib/server/` | Server-only: persistence and limits (`inquiries/`, historical name), auth, content publishing, media, security, ops |
 | `src/components/` | Shared UI (`ui/styles.ts` holds shared class strings) |
 | `supabase/migrations/` | SQL migrations, applied in name order; [supabase/README.md](supabase/README.md) |
 | `tests/`, `tests/db/` | Node test runner: mocked unit tests, real-database tests |
@@ -62,7 +62,7 @@ Windows PowerShell: use `npm.cmd` / `npx.cmd` if the `.ps1` wrappers are blocked
 
 - Server Components by default; add `"use client"` only for state, effects, events or browser APIs.
 - Business facts come from `site.ts` / published content. Never invent prices, hours, reviews, ratings or contact details.
-- Keep the OpenTable "Book now" link and every Call button. An inquiry never confirms a booking. Lunch is three courses, beverages excluded.
+- Keep the OpenTable "Book now" link and every Call button. No guest forms (ADR-0006). Lunch is three courses, beverages excluded.
 - Black-and-gold identity, Bodoni Moda + Albert Sans, square corners, no em dashes in site copy: [docs/design.md](docs/design.md). Technical conventions: [docs/technical.md](docs/technical.md).
 - English and Russian stay in step: a new UI string needs both `en.ts` and `ru.ts`.
 - Photos: real restaurant photos with provenance only, never generated scenes presented as real.

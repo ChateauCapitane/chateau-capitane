@@ -42,7 +42,7 @@ website shows the new version from the next page load.
 | --- | --- | --- |
 | Opening hours, lunch special, policies | **Hours, lunch special and dining policies** | Tick the days (consecutive, shown as "Wed to Sun"), set opening and closing times, the lunch price (whole dollars) and the dishes for each course (one per line), and the policy lines under the menu. |
 | Menu dishes and prices | **Menu: (section name)** | Edit a dish's name, description and price in dollars (for example `18` or `2.50`). With no price, fill in **Price note** ("each", "Market price"). Add a dish in an empty row; tick **Remove this dish** to remove one. |
-| Banquet packages | **Banquet: (package name)** | Name, price per person, summary, courses and dishes. Past inquiries keep the price the guest saw. |
+| Banquet packages | **Banquet: (package name)** | Name, price per person, summary, courses and dishes. |
 | Gallery photos | **Gallery: (section name)** | Replace a photo, add one in an empty row, or tick **Remove this photo from the gallery**. Fill in **Description for screen readers** (what the photo shows), an optional **Caption**, the **Date taken or posted**, and a **Link to the original post** if it came from Instagram. |
 
 **Photos:** JPEG, PNG or WebP, at most 3.5 MB, at least 400 pixels on the short side. Aim for 1080 pixels or more so
@@ -62,9 +62,7 @@ on the website at once, and **Copy to draft** starts editing from it.
 
 ## 5. Other staff pages
 
-- **Inquiries:** contact and banquet requests from guests. Filter by status, search by name or email, open one to
-  change its status or add a note. An inquiry is not a booking; reply to the guest yourself.
-- **Counts** (on the dashboard): Book now and Call taps, inquiries and banquet requests for the last 6 months,
+- **Counts** (on the dashboard): Book now and Call taps for the last 6 months,
   English and Russian.
-- **Security** (owner only): alerts about suspicious activity, blocking a network, pausing the contact form. See
+- **Security** (owner only): alerts about suspicious activity, blocking a network. See
   `docs/incident-response.md`.

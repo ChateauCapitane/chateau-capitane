@@ -2,7 +2,7 @@
 
 Marketing website for Château Capitaine, a bar and grill on Coney Island Avenue in Brooklyn.
 
-Next.js 16 (App Router), TypeScript, and Tailwind CSS v4. There is no CMS or database. Content lives in typed data files. Public pages are pre-rendered at build time; contact submissions use a server-side API route.
+Next.js 16 (App Router), TypeScript, and Tailwind CSS v4. Public pages are pre-rendered from typed data files; staff publish menu, hours and photo changes through `/admin` (Supabase). Guests call or book on OpenTable; there are no guest forms.
 
 ## Getting started
 
@@ -11,7 +11,7 @@ npm ci
 npm run dev                  # http://localhost:3000
 ```
 
-To test the contact form, copy `.env.example` to `.env.local` and supply the server-side settings described below. In PowerShell, use `Copy-Item .env.example .env.local`. Node.js 20.9 or newer is required by the installed Next.js version. If PowerShell blocks npm's script wrapper, use `npm.cmd` and `npx.cmd`.
+To run the staff pages and other server features locally, copy `.env.example` to `.env.local` and supply the server-side settings described below. In PowerShell, use `Copy-Item .env.example .env.local`. Node.js 20.9 or newer is required by the installed Next.js version. If PowerShell blocks npm's script wrapper, use `npm.cmd` and `npx.cmd`.
 
 Before calling an application change done, run both of these. Each must pass with no errors. Documentation-only checks and browser verification are described in [validation.md](docs/validation.md).
 
@@ -38,8 +38,7 @@ English is served at the site root and Russian under `/ru` (for example `/menu` 
 Staff pages (`/admin`) stay English only; `/ru/admin` is a 404. How staff sign in and change the menu, hours and
 photos, in plain steps: [docs/staff-guide.md](docs/staff-guide.md).
 
-The admin dashboard shows the last 6 months of Book now and Call taps (English / Russian), inquiries and banquet
-requests. Taps are counted first-party in Supabase, with no cookies or personal data (`src/app/api/track/route.ts`,
+The admin dashboard shows the last 6 months of Book now and Call taps (English / Russian). Taps are counted first-party in Supabase, with no cookies or personal data (`src/app/api/track/route.ts`,
 [ADR-0003](docs/decisions/ADR-0003-first-party-click-counts.md)). They are indicative counts, not confirmed bookings or calls.
 
 ## Editing content
@@ -61,36 +60,31 @@ Put image files in `public/photos/`.
 - **Gallery:** set `src` on the matching entry in `gallery.ts` (for example `"/photos/bar.jpg"`). The entry's `alt` text is already written. Until any gallery photo has a `src`, the gallery page stays out of search results and out of the sitemap. Both switch on automatically once one does.
 - **Other slots** (home, about, private events): each `PlaceholderImage` has a `label` describing the shot it needs. Pass a real photo path through its `src` prop to render the photo at the same aspect ratio without changing the layout.
 
-## Contact form
+## Calls and bookings only
 
-The form (`src/components/contact/contact-form.tsx`) posts to `src/app/api/contact/route.ts`. The route uses `src/lib/server/contact.ts` to validate each submission and store it in Supabase with a notification job. A Vercel Cron job (`vercel.json`, every minute) calls `/api/cron/notifications`, which emails staff through [Resend](https://resend.com) with `fetch` (no SDK). See [supabase/README.md](supabase/README.md).
+Guests reach the restaurant by calling or booking on OpenTable. There is no contact form, inquiry inbox or inquiry
+email ([ADR-0006](docs/decisions/ADR-0006-calls-and-opentable-only.md)), and the site stores no guest messages.
+Server settings (see [supabase/README.md](supabase/README.md) for the database):
 
 | Variable | Purpose |
 |---|---|
-| `RESEND_API_KEY` | Resend API key. Server-only. |
-| `CONTACT_FROM_EMAIL` | The sender address. Until the domain is verified in Resend, use its test sender, `Château Capitaine <onboarding@resend.dev>`. |
-| `CONTACT_TO_EMAIL` | Optional. The recipient, which defaults to `site.email`. The test sender only delivers to the Resend account owner's own address, so set this to that address while testing. |
-| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Inquiry storage. Server-only. |
-| `CRON_SECRET` | Authenticates the scheduled workers. Random, 16+ characters. |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Staff sign-in, published content, click counts, security records. Server-only. |
+| `RESEND_API_KEY` | Resend API key, used only for security alert emails. Server-only. |
+| `CONTACT_FROM_EMAIL` | Sender address of security alert emails. Until the domain is verified in Resend, use its test sender, `Château Capitaine <onboarding@resend.dev>`. |
+| `CRON_SECRET` | Authenticates the scheduled workers (security scan, retention). Random, 16+ characters. |
 | `HEALTH_TOKEN` | Uptime monitor's bearer for `/api/health` readiness. Random, 16+ characters, different from `CRON_SECRET`. |
 | `ADMIN_HOST` | Optional staff host (e.g. `admin.<domain>`): staff pages are served only there (ADR-0005). Leave unset locally. |
 | `MONITOR_TOKEN` | Bearer for the read-only incident API (`/api/security/incidents`). Random, 16+ characters, different from the other tokens. Unset means the API refuses everyone (ADR-0004). |
 | `SECURITY_ALERT_EMAIL` | Where security alert emails go (needs `RESEND_API_KEY` and `CONTACT_FROM_EMAIL`). Unset: incidents are still recorded, nothing is emailed. |
-| `SECURITY_ACTIONS_DISABLED` | Emergency stop. Set to `1` and every block and pause stops applying at once, and new ones are refused. |
+| `SECURITY_ACTIONS_DISABLED` | Emergency stop. Set to `1` and every block stops applying at once, and new ones are refused. |
 
-If storage or sender settings aren't set, the form shows a message asking the guest to call instead. Without `CRON_SECRET`/`RESEND_API_KEY`, inquiries are stored but no email goes out until they are set.
-
-The endpoint requires JSON, limits submissions to 32 KiB, validates real calendar dates and positive guest counts (1–9999), and quietly discards honeypot submissions. Optional fields can be omitted or blank. Dates are inquiry details; submitting the form does not reserve a table or event.
-
-Email requests time out after 10 seconds and report success only after the provider returns an email ID. That confirms provider acceptance, not delivery to the recipient's inbox. A timeout can leave delivery uncertain, so there are no automatic retries; guests can call before resending. Logs contain only diagnostic codes and provider status, never submission contents or raw provider responses.
-
-Run `npm test` for the contact backend's mocked tests. They cover validation, request limits, provider failures/timeouts, and route configuration without sending email. The suite uses Node's built-in runner and the already-installed TypeScript compiler; the production build verifies types. Durable inquiry storage, reservation availability, and distributed abuse controls require a separate deployment/data plan.
+`npm run verify` runs the mocked unit tests (Node's built-in runner); `npm run test:db` runs the real-database tests.
 
 ## Before launch
 
 - Set `site.url` in `src/lib/data/site.ts` to the production domain. Canonical URLs, the sitemap, `robots.txt`, share images, and structured data all derive from it.
 - Old WordPress URLs redirect to their new pages through `next.config.ts`. This only has an effect if the old domain points at this site.
-- Once the domain is verified in Resend, switch `CONTACT_FROM_EMAIL` to an address on that domain.
+- Once the domain is verified in Resend, switch `CONTACT_FROM_EMAIL` (security alerts) to an address on that domain.
 
 ## Other files
 

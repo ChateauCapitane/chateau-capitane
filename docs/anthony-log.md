@@ -10,6 +10,15 @@ own thinking (resume, interviews). The rules for each entry:
 Newest first. Written by the planner at every READY TO SHIP and whenever Anthony gives a new report or decision.
 Earlier history (B01-B12, SEO, Russian version) is in git (`git log -p -- next.md`) and was not backfilled.
 
+## 2026-11-16: calls and OpenTable only
+- **Found:** the site asked guests to fill in contact and banquet forms, which meant storing guest messages, an inbox
+  for staff to watch, and inquiry emails to run.
+- **His thinking:** guests should just call or book on OpenTable. He approved removing the forms, then approved the
+  agents' plan (ADR, real-database migration, both reviews) as a yes/no.
+- **Result (agents):** ADR-0006, branch `feat/calls-only`: forms, inbox, inquiry email and the inquiry tables
+  removed; Call and Book now kept everywhere; security alert email kept. Gates green, code and security reviews PASS.
+  Not committed yet.
+
 ## 2026-11-16: launch roadmap, owner answers, and calls only
 - **Found:** he wanted one list of everything needed to launch, and a way to answer the open questions there so
   nothing gets lost between sessions.

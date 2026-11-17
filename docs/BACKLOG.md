@@ -28,14 +28,17 @@ The single list of deferred work. Anything a slice skips, an unfixed review find
 - Russian: staff can't enter Russian text, so new staff-edited dishes show in English on `/ru` until added to `src/lib/i18n/content-ru.ts`.
 - Lint: unused `eslint-disable` directive at `src/app/apple-icon.tsx:16`.
 - UI audit fixes (2026-11-14, [ui-audit.md](ui-audit.md), report only so far). Suggested order: H1 320px sideways
-  scroll and the RU menu button cut off → M1+M2 contact form focus, success/error look alike, error names no field →
+  scroll and the RU menu button cut off → (M1+M2 dropped with the contact form, ADR-0006) →
   M4 staff sign-in shows the public header and a RU link to a 404 → quick wins (L1 404 title, L2 typo, L3 "Позвонить",
   em dashes in EN copy; RU dashes need a rule decision) → L4 image `sizes`. S1-S4 suggestions and an inKind popup check
   on a preview deploy.
-- **Remove the guest inquiry forms** (Anthony approved, 2026-11-16): guests only call or book on OpenTable. Remove
-  the contact form and the Private Events banquet request form, the staff inbox, the notification email cron and
-  Resend; keep every Call button and Book now. Changes an API route contract, cron and deps: ADR first, T5 review.
-  Then update the privacy notice facts and the release checklist (no Resend, no email checks).
+- Leftovers of the calls-only removal (ADR-0006, reviews 2026-11-16, all harmless dead names):
+  `.env.example` still lists `CONTACT_TO_EMAIL` and `RESEND_WEBHOOK_SECRET` (the builder's session may not read env
+  files; Anthony can delete those two lines). Dead security rule R4 (Resend webhook) in `security/rules.ts:61-67` and
+  `webhook_bad_signature` in `record.ts`. The DB check constraints and `security_gate` still accept `contact_*`,
+  `contact` and `pause_contact`; a stale comment at `api/health/route.ts:8`. `events.packageLabel` / `packageLabel()`
+  may be unused. No live database ever ran, so no `pause_contact` rows can exist.
+- Release: there is no "send a test security alert" button; step 5 of the release checklist waits for a real alert.
 - Owner answers to apply (2026-11-16, from the [launch roadmap](https://claude.ai/artifact/2knxWr3TM1zwZEfhbmiHiJ)):
   lunch $25 (keep); Fri/Sat $100 minimum is per person (keep); pelmeni/vareniki $16 per plate (keep); add the
   "Special Garnishes $6" list (angel hair pasta, mushroom couscous, creamy risotto, home potatoes, creamy polenta,

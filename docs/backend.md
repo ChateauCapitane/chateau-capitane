@@ -1,5 +1,9 @@
 # Backend foundation
 
+> **Superseded (2026-11-16):** the contact and event inquiry backend described below was removed by
+> [ADR-0006](decisions/ADR-0006-calls-and-opentable-only.md). Kept as history; staff access and content sections
+> live on in `supabase/README.md`.
+
 The initial backend capability is contact and event inquiries through the existing form. Inquiries are stored durably with a notification job (B03b); email to staff is sent by a scheduled worker. Invited staff sign in at `/admin` to work the inquiry inbox and to edit and publish menus, hours and banquet packages (B09; see "Content publishing (B09)" in [supabase/README.md](../supabase/README.md)). There is no reservation inventory or payment flow.
 
 ## Contact request

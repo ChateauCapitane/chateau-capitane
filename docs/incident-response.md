@@ -25,7 +25,7 @@ until the staging checks at the end pass.
    absence of incidents proves nothing until it is fixed.
 3. **Gather evidence (read-only):** the incident list (`/api/security/incidents`) for related open incidents and the
    same subject; Vercel request logs by `requestId` for the window (owner's dashboard); Supabase Auth logs for sign-in
-   failures (dashboard); Resend dashboard for webhook or sending anomalies. Note which you could not see.
+   failures (dashboard); Resend dashboard for alert-sending anomalies. Note which you could not see.
 4. **Decide:** confirmed attack, likely benign (see each rule's false positives), or inconclusive. Say which evidence
    decided it and what is uncertain.
 5. **Recommend** the smallest containment from the rule table, with an expiry (1 hour default, 24 maximum).
@@ -40,17 +40,16 @@ until the staging checks at the end pass.
 | R1_password_guessing | Credential guessing / stuffing on staff sign-in | Staff forgot password; shared office network | Already rate limited. `block_subject` 1 h if one network | Many networks: ask staff to change passwords; enable MFA work |
 | R2_login_lockout | Same as R1, or deliberate lockout of staff | Staff mistyping repeatedly | Confirm staff can sign in from another network; `block_subject` | — |
 | R3_non_staff_admin | Valid Supabase Auth user not on staff (removed staff, or sign-up left open) | Recently removed staff member | None on the site; check Supabase sign-up is off | Ban the Auth user in Supabase (owner) |
-| R4_forged_webhook | Forged Resend events | Rotated `RESEND_WEBHOOK_SECRET` not updated | Verify secret matches Resend dashboard | Rotate webhook secret |
+| R4_forged_webhook | Retired: the Resend webhook was removed (ADR-0006); cannot fire | — | — | — |
 | R5_secret_probing | Guessing `CRON_SECRET`, `HEALTH_TOKEN` or `MONITOR_TOKEN` | Uptime monitor with an old token | Check monitor config | Rotate the token (owner; brief cron pause) |
-| R6_spam_wave | Bot spam on the contact form | Big event announcement | `block_subject` per network; `pause_contact` 1 h if many networks | — |
+| R6_spam_wave | Retired: the contact form was removed (ADR-0006); cannot fire | — | — | — |
 | R7_disguised_upload | Staff account uploading crafted files (compromised account?) | Staff uploading HEIC/odd files | Ask the staff member; none automatic | Remove staff member (SQL, owner) and revoke Auth sessions |
 | R0_synthetic | Test only | — | None; set `resolved` | — |
 
 ## Predefined response actions
 | Action | Effect | Bounds | Undo |
 | --- | --- | --- | --- |
-| `block_subject` | One network hash gets the normal "limited" reply on contact, sign-in and click beacons | 1-24 h, ≤ 20 active, ≤ 20 actions/hour, network only (never an account) | "Lift" on `/admin/security`, or expiry |
-| `pause_contact` | Contact form answers 503; guests see the phone number | 1-24 h; never affects sign-in | "Lift", or expiry |
+| `block_subject` | One network hash gets the normal "limited" reply on sign-in and click beacons | 1-24 h, ≤ 20 active, ≤ 20 actions/hour, network only (never an account) | "Lift" on `/admin/security`, or expiry |
 | Emergency stop | `SECURITY_ACTIONS_DISABLED=1` in Vercel: every action ineffective, new ones refused | — | Remove the setting |
 
 `block_subject` targets only the subject of an existing incident (64 hex characters), never `-` (everyone
