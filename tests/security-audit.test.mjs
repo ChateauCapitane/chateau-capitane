@@ -94,7 +94,7 @@ function proxy(env) {
 }
 test("proxy with ADMIN_HOST: staff pages only on the staff host, public pages only elsewhere", () => {
   const go = proxy({ ADMIN_HOST: "Admin.Example.Test" });
-  assert.deepEqual(go("admin.example.test", "/admin/inquiries"), { kind: "rewrite", to: "/en/admin/inquiries" });
+  assert.deepEqual(go("admin.example.test", "/admin/content"), { kind: "rewrite", to: "/en/admin/content" });
   assert.equal(go("www.example.test", "/admin").status, 404);
   assert.equal(go("www.example.test", "/admin/login").status, 404);
   assert.deepEqual(go("www.example.test", "/menu"), { kind: "rewrite", to: "/en/menu" });
@@ -123,7 +123,7 @@ test("isStaffHost: unset or blank allows any host; set compares case-insensitive
 });
 test("proxy with ADMIN_HOST: /ru/admin and /en/admin are staff paths too", () => {
   const go = proxy({ ADMIN_HOST: "admin.example.test" });
-  for (const path of ["/ru/admin/login", "/en/admin", "/en/admin/inquiries", "/ru/admin"]) {
+  for (const path of ["/ru/admin/login", "/en/admin", "/en/admin/content", "/ru/admin"]) {
     assert.equal(go("www.example.test", path).status, 404, path);
   }
   assert.deepEqual(go("admin.example.test", "/ru/admin/login"), { kind: "next" });

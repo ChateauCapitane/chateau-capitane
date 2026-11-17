@@ -104,11 +104,6 @@ test("click counts on real PostgreSQL", { timeout: 120_000 }, async (t) => {
       await rejects(as("service_role", "select public.staff_click_summary(null,3)"), "42501");
       for (const months of [0, 25, null]) await rejects(as("service_role", "select public.staff_click_summary($1,$2)", [staff, months]), "22023");
 
-      const guest = { name: "Test Guest", email: "guest@example.invalid", phone: "", date: "", guests: "", message: "Synthetic request", kind: "contact", eventPackage: "" };
-      const note = { sender: "Website <sender@example.invalid>", recipient: "staff@example.invalid", reply_to: guest.email, subject: "Synthetic", body: "Synthetic" };
-      for (const input of [guest, guest, { ...guest, kind: "event", eventPackage: "Synthetic package" }]) {
-        await as("service_role", "select public.record_contact_inquiry($1::jsonb,$2::uuid,$3::jsonb)", [input, randomUUID(), note]);
-      }
       // A tap from a past month lands in that month's row, not this one's.
       await admin.query("insert into inquiry_private.click_counts values ((now() at time zone 'America/New_York')::date - 40, 'call', 'en', 7)");
 
@@ -116,11 +111,11 @@ test("click counts on real PostgreSQL", { timeout: 120_000 }, async (t) => {
       assert.equal(rows.length, 3);
       const month = (await admin.query("select to_char(now() at time zone 'America/New_York', 'YYYY-MM') m")).rows[0].m;
       assert.equal(rows[0].month, month);
-      assert.deepEqual({ ...rows[0] }, { month, bookEn: 3, bookRu: 1, callEn: rows[0].callEn, callRu: 2, inquiries: 2, events: 1 });
+      assert.deepEqual({ ...rows[0] }, { month, bookEn: 3, bookRu: 1, callEn: rows[0].callEn, callRu: 2 });
       assert.ok(rows[0].callEn >= 1);
       assert.ok(rows[1].month < rows[0].month && rows[2].month < rows[1].month);
       assert.equal(rows.reduce((total, row) => total + row.callEn, 0), 8);
-      assert.deepEqual(rows.slice(1).map((row) => [row.bookEn, row.inquiries, row.events]), [[0, 0, 0], [0, 0, 0]]);
+      assert.deepEqual(rows.slice(1).map((row) => [row.bookEn]), [[0], [0]]);
 
       // Removing the membership stops access on the next call.
       await admin.query("delete from inquiry_private.staff_members where user_id=$1", [staff]);

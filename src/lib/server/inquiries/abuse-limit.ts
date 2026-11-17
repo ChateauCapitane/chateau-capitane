@@ -3,14 +3,6 @@ import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
 import { callRpc, type Configuration } from "./persistence";
 
-/** Starting thresholds, not tuned values: a restaurant form sees a few messages a day.
- * Raise them if real guests are refused (logged as contact_rate_limited). See "Contact rate limits" in supabase/README.md.
- */
-export const CONTACT_LIMITS = Object.freeze({
-  subjectLimit: 5, subjectSeconds: 10 * 60, // per client network
-  globalLimit: 60, globalSeconds: 60 * 60, // whole site
-});
-
 export type LimitResult = { kind: "allowed" } | { kind: "limited"; retryAfter: number } | { kind: "unavailable" };
 
 /** The client network, from the only header Vercel sets itself and documents as not overwritable
@@ -40,23 +32,6 @@ export function clientNetwork(request: Pick<Request, "headers">, env: NodeJS.Pro
     return [full[6] >> 8, full[6] & 255, full[7] >> 8, full[7] & 255].join(".");
   }
   return `${full.slice(0, 4).map((g) => g.toString(16).padStart(4, "0")).join(":")}::/64`;
-}
-
-/** Counts one valid attempt against shared limits. Fails closed: a limiter outage is "unavailable",
- * never unrestricted acceptance. Stores only a keyed hash of the network, not the address.
- */
-export async function checkContactLimit(
-  request: Request, submissionKey: string | null, configuration: Configuration,
-  options: { env?: NodeJS.ProcessEnv; fetch?: typeof fetch } = {},
-): Promise<LimitResult> {
-  const subject = createHmac("sha256", configuration.secretKey)
-    .update(`contact-limit:${clientNetwork(request, options.env)}`).digest("hex");
-  const result = await callRpc(configuration, "check_contact_limit", {
-    p_subject: subject, p_key: submissionKey?.toLowerCase() ?? null,
-    p_subject_limit: CONTACT_LIMITS.subjectLimit, p_subject_seconds: CONTACT_LIMITS.subjectSeconds,
-    p_global_limit: CONTACT_LIMITS.globalLimit, p_global_seconds: CONTACT_LIMITS.globalSeconds,
-  }, 256, options.fetch);
-  return parseLimitResult(result);
 }
 
 /** Shared reply check for the limit RPCs; anything unexpected is "unavailable" (fail closed). */

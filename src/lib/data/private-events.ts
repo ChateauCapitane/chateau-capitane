@@ -356,7 +356,7 @@ export function getPrivateEventTiers(): BanquetTier[] {
   return tiers;
 }
 
-/** The package as guests see it in the contact form; stored with event inquiries as a snapshot. */
+/** The package as guests see it on the private events page. */
 export function packageLabel(tier: BanquetTier): string {
   return `${tier.name}, $${tier.pricePerPerson} per person`;
 }

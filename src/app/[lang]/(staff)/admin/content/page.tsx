@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { linkClasses } from "@/components/ui/styles";
 import { requireStaff } from "@/lib/server/auth/session";
 import { draftDocument, getContentState } from "@/lib/server/content/content";
-import { formatTime } from "@/lib/server/inquiries/staff-inbox";
+import { formatTime } from "@/lib/server/format-time";
 import { getPersistenceConfiguration } from "@/lib/server/inquiries/persistence";
 
 const headingClasses = "font-serif text-3xl text-ivory";

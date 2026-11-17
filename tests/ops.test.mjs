@@ -15,7 +15,7 @@ function load(path, imports) {
 }
 const persistence = { callRpc: async (_c, _name, _a, _m, fetchImpl) => fetchImpl() };
 const ops = load("src/lib/server/ops.ts", { "server-only": {}, "node:crypto": { createHash, randomUUID, timingSafeEqual }, "./inquiries/persistence": persistence });
-const healthy = { jobs: { accepted: 4 }, oldestDueJobSeconds: 0, deliveryProblems7d: 0, unmatchedDeliveryEvents: 0, inquiries24h: 1, loginHitsNow: 0 };
+const healthy = { loginHitsNow: 0, securityHighOpen: 0, securityLastRunSeconds: 60 };
 const secret = "s".repeat(20);
 const request = (authorization) => ({ headers: new Headers(authorization ? { authorization } : {}) });
 
@@ -36,12 +36,11 @@ test("health token: exact bearer only, never the cron secret, short or unset nev
   assert.equal(ops.hasCronSecret(request(`Bearer ${secret}`), { HEALTH_TOKEN: secret }), false);
 });
 
-test("problems: healthy is empty; stale queue, failed, uncertain, delivery and backlog are named", () => {
+test("problems: healthy is empty; an open high incident and stale or missing detection are named", () => {
   assert.deepEqual([...ops.findProblems(healthy)], []);
-  assert.deepEqual([...ops.findProblems({ ...healthy, oldestDueJobSeconds: 600 })], []);
-  assert.deepEqual([...ops.findProblems({ ...healthy, oldestDueJobSeconds: 601, jobs: { failed: 1, uncertain: 2 },
-    deliveryProblems7d: 1, unmatchedDeliveryEvents: 5001 })],
-  ["notification_queue_stale", "notification_jobs_failed", "notification_jobs_uncertain", "email_delivery_problems", "delivery_event_backlog"]);
+  assert.deepEqual([...ops.findProblems({ ...healthy, securityHighOpen: 1 })], ["security_incident_open"]);
+  assert.deepEqual([...ops.findProblems({ ...healthy, securityLastRunSeconds: 901 })], ["security_detection_stale"]);
+  assert.deepEqual([...ops.findProblems({ ...healthy, securityLastRunSeconds: null })], ["security_detection_stale"]);
 });
 
 test("readiness: down without storage or on a bad answer, attention on problems, ok otherwise", async () => {
@@ -52,9 +51,9 @@ test("readiness: down without storage or on a bad answer, attention on problems,
   assert.equal((await ops.readiness(cfg, async () => undefined)).status, "down");
   assert.equal((await ops.readiness(cfg, async () => ({ nope: 1 }))).status, "down");
   assert.equal((await ops.readiness(cfg, async () => healthy)).status, "ok");
-  const stale = await ops.readiness(cfg, async () => ({ ...healthy, oldestDueJobSeconds: 9999 }));
+  const stale = await ops.readiness(cfg, async () => ({ ...healthy, securityLastRunSeconds: 9999 }));
   assert.equal(stale.status, "attention");
-  assert.deepEqual([...stale.problems], ["notification_queue_stale"]);
+  assert.deepEqual([...stale.problems], ["security_detection_stale"]);
 });
 
 test("readiness: production without ADMIN_HOST is staff_host_unset; set, blank-free or non-production is not", async () => {

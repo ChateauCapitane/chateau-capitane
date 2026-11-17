@@ -1,4 +1,4 @@
-import { CtaLink } from "@/components/ui/cta-link";
+import { CallCta } from "@/components/ui/call-cta";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import type { BanquetTier } from "@/lib/data/private-events";
 import { getDictionary, translateContent } from "@/lib/i18n/dictionary";
@@ -41,12 +41,7 @@ export function TierSection({ tier, locale }: { tier: BanquetTier; locale: Local
         ))}
       </div>
 
-      <CtaLink href={`/contact?event=${tier.id}`} variant="secondary" className="mt-10">
-        {t.ask}
-        <span className="sr-only">
-          : {translateContent(locale, tier.name)} ${tier.pricePerPerson}
-        </span>
-      </CtaLink>
+      <CallCta variant="secondary" className="mt-10" />
     </section>
   );
 }

@@ -1,7 +1,6 @@
 import { Container } from "@/components/layout/container";
 import { TierSection } from "@/components/private-events/tier-section";
 import { CallCta } from "@/components/ui/call-cta";
-import { CtaLink } from "@/components/ui/cta-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PlaceholderImage } from "@/components/ui/placeholder-image";
 import { SectionIndex } from "@/components/ui/section-index";
@@ -29,9 +28,6 @@ export async function PrivateEventsView({ tiers }: { tiers: BanquetTier[] }) {
           className="md:col-span-6"
         >
           <CallCta />
-          <CtaLink href="/contact?event=undecided" variant="secondary">
-            {t.sendDetails}
-          </CtaLink>
         </PageHeader>
 
         <div className="md:col-span-5 md:col-start-8">

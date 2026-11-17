@@ -6,12 +6,12 @@ import { requestLogger } from "../ops";
 
 /** Matches the check constraint on inquiry_private.security_event_counts. */
 export const EVENT_CODES = ["login_failed", "login_limited", "staff_denied", "webhook_bad_signature", "cron_bad_secret",
-  "contact_limited", "contact_honeypot", "track_limited", "upload_refused", "blocked_request"] as const;
+  "track_limited", "upload_refused", "blocked_request"] as const;
 export type EventCode = (typeof EVENT_CODES)[number];
-export type Surface = "contact" | "login" | "track";
+export type Surface = "login" | "track";
 export type Gate = { kind: "clear" } | { kind: "blocked"; retryAfter: number } | { kind: "paused" };
 
-/** What the contact, track and sign-in code receives; tests pass a fake. */
+/** What the track and sign-in code receives; tests pass a fake. */
 export type Security = {
   gate: (request: Pick<Request, "headers">, surface: Surface, configuration: Configuration) => Promise<Gate>;
   event: (request: Pick<Request, "headers">, code: EventCode, configuration?: Configuration | null) => Promise<void>;
@@ -20,7 +20,7 @@ export type Security = {
 type Options = { env?: NodeJS.ProcessEnv; fetch?: typeof fetch; now?: () => number };
 
 /** At most this many writes per event code per minute per instance; the rest are dropped silently. 60 is above the
- * largest per-minute need of any detection rule (the highest threshold is 50, R6 contact_honeypot, over 60 minutes),
+ * largest per-minute need of any detection rule (the highest threshold is 50, over 60 minutes),
  * so one full minute at the cap still fires every rule. Unauthenticated floods cannot write without bound.
  */
 export const EVENT_WRITES_PER_MINUTE = 60;
@@ -72,7 +72,7 @@ export async function recordBadBearer(request: Pick<Request, "headers">, options
   if (request.headers.get("authorization")) await recordSecurityEvent(request, "cron_bad_secret", undefined, options);
 }
 
-/** Asks whether this network is blocked (or contact paused). Any failure is "clear": the rate limiters that run
+/** Asks whether this network is blocked. Any failure is "clear": the rate limiters that run
  * next still fail closed, so an outage here never lets unlimited traffic in. A block also counts as an event.
  */
 export async function gateRequest(request: Pick<Request, "headers">, surface: Surface, configuration: Configuration,

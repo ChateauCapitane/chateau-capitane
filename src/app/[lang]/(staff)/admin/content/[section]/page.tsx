@@ -206,7 +206,7 @@ export default async function ContentSectionPage({ params }: PageProps<"/[lang]/
         </div>
         <Text name="summary" label="Summary" value={tier.summary} max={200} required />
         <p className="text-sm text-ivory-muted">
-          Event inquiries keep the package name and price the guest saw, so changing them here does not alter past inquiries.
+          Changing a package name or price here changes the private events page once you publish.
         </p>
         {[...tier.courses, undefined].map((course, slot) => (
           <fieldset key={slot} className="grid gap-4 border-t border-ivory/15 pt-6">

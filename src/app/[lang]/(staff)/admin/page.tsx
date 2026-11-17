@@ -15,8 +15,7 @@ export default async function AdminPage() {
       <PageHeader eyebrow="Staff" title="Dashboard"
         intro={`Signed in as ${staff.email || "staff member"} (${staff.role}).`} />
       <div className="mt-10 flex flex-wrap gap-4">
-        <CtaLink href="/admin/inquiries">Open inquiries</CtaLink>
-        <CtaLink href="/admin/content" variant="secondary">Website content</CtaLink>
+        <CtaLink href="/admin/content">Website content</CtaLink>
         {staff.role === "owner" ? <CtaLink href="/admin/security" variant="secondary">Security</CtaLink> : null}
         <form action={logout}>
           <button type="submit" className={ctaClassName("secondary")}>Sign out</button>
@@ -25,8 +24,7 @@ export default async function AdminPage() {
 
       <h2 id="activity" className="mt-16 font-serif text-3xl text-ivory">Guest activity by month</h2>
       <p className="mt-3 max-w-2xl text-sm text-ivory-muted">
-        Book now and Call are taps on the website buttons, counted by us. A tap is not a completed booking or call.
-        Inquiries and private-event requests are the messages guests sent. Months use New York time.
+        Book now and Call are taps on the website buttons, counted by us. A tap is not a completed booking or call. Months use New York time.
       </p>
       {months ? (
         <div className="mt-6 overflow-x-auto">
@@ -36,8 +34,6 @@ export default async function AdminPage() {
                 <th scope="col" className="py-2 pr-4 font-medium">Month</th>
                 <th scope="col" className="py-2 pr-4 font-medium">Book now (EN / RU)</th>
                 <th scope="col" className="py-2 pr-4 font-medium">Call (EN / RU)</th>
-                <th scope="col" className="py-2 pr-4 font-medium">Inquiries</th>
-                <th scope="col" className="py-2 font-medium">Banquet requests</th>
               </tr>
             </thead>
             <tbody>
@@ -46,8 +42,6 @@ export default async function AdminPage() {
                   <th scope="row" className="py-2 pr-4 font-medium">{row.month}</th>
                   <td className="py-2 pr-4">{row.bookEn} / {row.bookRu}</td>
                   <td className="py-2 pr-4">{row.callEn} / {row.callRu}</td>
-                  <td className="py-2 pr-4">{row.inquiries}</td>
-                  <td className="py-2">{row.events}</td>
                 </tr>
               ))}
             </tbody>

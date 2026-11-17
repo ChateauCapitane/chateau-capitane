@@ -135,7 +135,7 @@ test("the listener beacons Call and Book now taps with target and language only"
 });
 
 test("the listener is not attached on staff pages", () => {
-  const page = listener("/admin/inquiries");
+  const page = listener("/admin/content");
   page.click("tel:+17185551234");
   assert.equal(page.beacons.length, 0);
 });

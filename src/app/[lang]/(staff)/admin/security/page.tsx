@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { linkClasses } from "@/components/ui/styles";
 import { requireStaff } from "@/lib/server/auth/session";
 import { getPersistenceConfiguration } from "@/lib/server/inquiries/persistence";
-import { formatTime } from "@/lib/server/inquiries/staff-inbox";
+import { formatTime } from "@/lib/server/format-time";
 import { readIncidentsAsOwner, STATUSES, type IncidentRecord } from "@/lib/server/security/incidents";
 import { actionsDisabled } from "@/lib/server/security/record";
 import { RULES, type RuleName } from "@/lib/server/security/rules";
@@ -31,7 +31,6 @@ const notices: Record<string, string> = {
   "refused-not_incident_subject": "That network does not belong to this incident.",
   "refused-own_network": "That is your own network. Blocking it would lock you out.",
   "refused-too_many_blocks": "Twenty blocks are already active. Lift one first.",
-  "refused-already_active": "The contact form is already paused.",
   "refused-rate_limited": "Twenty actions were taken in the last hour. Try again later.",
 };
 
@@ -42,7 +41,6 @@ function Incident({ incident }: { incident: IncidentRecord }) {
   const rule = RULES[incident.rule as RuleName];
   const live = incident.status === "open" || incident.status === "investigating" || incident.status === "contained";
   const blockable = live && (rule.actions as readonly string[]).includes("block_subject") && incident.subject !== "-";
-  const pausable = live && (rule.actions as readonly string[]).includes("pause_contact");
   return (
     <li className="border-b border-ivory/15 py-6">
       <h3 className="font-serif text-2xl text-ivory">{incident.id}{incident.test ? " (test)" : ""}</h3>
@@ -89,16 +87,6 @@ function Incident({ incident }: { incident: IncidentRecord }) {
               <input type="number" name="hours" min={1} max={24} defaultValue={1} className={`${field} w-24`} />
             </label>
             <button type="submit" className={smallButton}>Block this network</button>
-          </form>
-        ) : null}
-        {pausable ? (
-          <form action={takeAction} className="flex flex-wrap items-end gap-3">
-            <input type="hidden" name="kind" value="pause_contact" />
-            <input type="hidden" name="incident" value={incident.id} />
-            <label className="grid gap-1 text-xs text-ivory-muted">Hours (1 to 24)
-              <input type="number" name="hours" min={1} max={24} defaultValue={1} className={`${field} w-24`} />
-            </label>
-            <button type="submit" className={smallButton}>Pause the contact form</button>
           </form>
         ) : null}
         <form action={changeStatus} className="flex flex-wrap items-end gap-3">

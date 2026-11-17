@@ -65,7 +65,7 @@ export function toIncident(row: unknown, env: NodeJS.ProcessEnv = process.env, n
   for (const a of Array.isArray(r.actions) ? r.actions : []) {
     if (!a || typeof a !== "object") return null;
     const { id, kind, created_at, expires_at, lifted_at } = a as Record<string, unknown>;
-    if (!Number.isInteger(id) || (kind !== "block_subject" && kind !== "pause_contact") || !isTime(created_at) || !isTime(expires_at) ||
+    if (!Number.isInteger(id) || kind !== "block_subject" || !isTime(created_at) || !isTime(expires_at) ||
         (lifted_at !== null && !isTime(lifted_at))) return null;
     const outcome = lifted_at ? "lifted" : Date.parse(expires_at) <= now ? "expired" : "active";
     actions.push({ id: id as number, kind, created_at, expires_at, lifted_at: lifted_at as string | null, by: "owner", outcome });

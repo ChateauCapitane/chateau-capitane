@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { ContactForm } from "@/components/contact/contact-form";
 import { ContactInfo } from "@/components/contact/contact-info";
 import { MapEmbed } from "@/components/contact/map-embed";
 import { Container } from "@/components/layout/container";
@@ -30,9 +29,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContactPage() {
   const locale = await getLocale();
-  const dict = getDictionary(locale);
-  const t = dict.contact;
-  const { packages, hours, lunchSpecialPrice, menuNotes } = await getSiteContent();
+  const t = getDictionary(locale).contact;
+  const { hours, lunchSpecialPrice, menuNotes } = await getSiteContent();
   return (
     <Container className="pb-20 pt-14 md:pb-28 md:pt-20">
       <PageHeader
@@ -43,29 +41,16 @@ export default async function ContactPage() {
 
       <BookCta className="mt-8" />
 
-      <div className="mt-16 grid gap-16 md:mt-20 md:grid-cols-12 md:gap-12">
-        <div className="md:col-span-7">
-          <h2 className="font-serif text-2xl tracking-tight text-ivory sm:text-3xl">
-            {t.sendTitle}
-          </h2>
-          <div className="mt-8">
-            <ContactForm
-              packages={packages.map((tier) => ({
-                id: tier.id,
-                label: dict.events.packageLabel(translateContent(locale, tier.name), tier.pricePerPerson),
-              }))}
-              strings={t.form}
-            />
-          </div>
-        </div>
-
-        <div className="bg-ink-800 px-6 py-10 sm:px-8 md:col-span-5 md:self-start">
+      <div className="mt-16 md:mt-20">
+        <div className="bg-ink-800 px-6 py-10 sm:px-8">
           <h2 className="font-serif text-2xl tracking-tight text-ivory sm:text-3xl">
             {t.visitTitle}
           </h2>
-          <ContactInfo columns={1} className="mt-8" />
-          <div className="mt-10">
-            <MapEmbed />
+          <div className="mt-8 grid gap-10 md:grid-cols-2 md:gap-12">
+            <ContactInfo columns={1} className="min-w-0" />
+            <div className="min-w-0">
+              <MapEmbed />
+            </div>
           </div>
         </div>
       </div>

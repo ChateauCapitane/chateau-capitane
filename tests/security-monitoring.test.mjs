@@ -44,11 +44,13 @@ function modules({ env = {}, callRpc = async () => true, network = NETWORK } = {
 test("the rule catalogue and the event codes match the SQL exactly", () => {
   const { rules, record } = modules();
   const sqlRules = [...migration.matchAll(/security_(?:scan|raise)\('(R\d_[a-z_]+)'/g)].map((m) => m[1]);
-  same([...new Set(sqlRules)].sort(), Object.keys(rules.RULES).sort());
+  // R6 (contact spam) stays in the SQL; the app dropped its entry with the contact form (ADR-0006).
+  const kept = (names) => names.filter((n) => n !== "R6_spam_wave").sort();
+  same(kept([...new Set(sqlRules)]), Object.keys(rules.RULES).sort());
   const check = migration.match(/rule in \(([^)]*)\)/)[1];
-  same([...check.matchAll(/'(R\d_[a-z_]+)'/g)].map((m) => m[1]).sort(), Object.keys(rules.RULES).sort());
+  same(kept([...check.matchAll(/'(R\d_[a-z_]+)'/g)].map((m) => m[1])), Object.keys(rules.RULES).sort());
   const codes = migration.match(/code in \(([^)]*)\)/)[1];
-  same([...codes.matchAll(/'([a-z_]+)'/g)].map((m) => m[1]).sort(), [...record.EVENT_CODES].sort());
+  same([...codes.matchAll(/'([a-z_]+)'/g)].map((m) => m[1]).filter((c) => !c.startsWith("contact_")).sort(), [...record.EVENT_CODES].sort());
   for (const [name, rule] of Object.entries(rules.RULES)) {
     for (const field of ["technique", "uncertainty", "rollback"]) assert.ok(rule[field].length > 0, `${name}.${field}`);
     assert.ok(rule.containment.length > 0 && rule.investigation.length > 0, name);
@@ -77,14 +79,14 @@ test("recordSecurityEvent sends a code and one network hash only, and never thro
   same(args, { p_code: "login_failed", p_subject: HASH });
   assert.doesNotMatch(JSON.stringify(calls), new RegExp(NETWORK.replaceAll(".", "\\.")));
   same(logs, []);
-  // The hash is not the one a limiter would store ("contact-limit:", "login-limit:", "track-limit:").
-  for (const purpose of ["contact-limit", "login-limit", "track-limit"]) {
+  // The hash is not the one a limiter would store ("login-limit:", "track-limit:").
+  for (const purpose of ["login-limit", "track-limit"]) {
     assert.notEqual(createHmac("sha256", configuration.secretKey).update(`${purpose}:${NETWORK}`).digest("hex"), HASH);
   }
 });
 test("recordSecurityEvent: an unknown network is '-', and a failing or throwing store changes nothing", async () => {
   const unattributed = modules({ network: "unattributed" });
-  await unattributed.record.recordSecurityEvent({ headers: new Headers() }, "contact_honeypot", configuration);
+  await unattributed.record.recordSecurityEvent({ headers: new Headers() }, "staff_denied", configuration);
   assert.equal(unattributed.calls[0][2].p_subject, "-");
   for (const callRpc of [async () => undefined, async () => { throw new Error("boom"); }, async () => false]) {
     const { record, logs } = modules({ callRpc });
@@ -108,7 +110,7 @@ test("recordBadBearer counts only requests that offered a bearer", async () => {
 test("gateRequest: blocked, paused, clear, emergency stop, and every failure is clear", async () => {
   const answers = [];
   const { record, calls } = modules({ callRpc: async (_c, name) => name === "security_gate" ? answers.shift() : true });
-  const gate = (surface = "contact") => record.gateRequest({ headers: new Headers() }, surface, configuration);
+  const gate = (surface = "login") => record.gateRequest({ headers: new Headers() }, surface, configuration);
   answers.push({ blocked: true, paused: false, retryAfter: 1800 });
   same({ ...await gate() }, { kind: "blocked", retryAfter: 1800 });
   assert.equal(calls.at(-1)[2].p_code, "blocked_request", "a block counts as an event");
@@ -122,9 +124,9 @@ test("gateRequest: blocked, paused, clear, emergency stop, and every failure is 
   const failing = modules({ callRpc: async () => { throw new Error("down"); } });
   same({ ...await failing.record.gateRequest({ headers: new Headers() }, "login", configuration) }, { kind: "clear" });
   const stopped = modules({ env: { SECURITY_ACTIONS_DISABLED: "1" }, callRpc: async () => ({ blocked: false, paused: false, retryAfter: 1 }) });
-  await stopped.record.gateRequest({ headers: new Headers() }, "contact", configuration, { env: { SECURITY_ACTIONS_DISABLED: "1" } });
+  await stopped.record.gateRequest({ headers: new Headers() }, "login", configuration, { env: { SECURITY_ACTIONS_DISABLED: "1" } });
   assert.equal(stopped.calls[0][2].p_disabled, true);
-  same(stopped.calls[0][2].p_surface, "contact");
+  same(stopped.calls[0][2].p_surface, "login");
   assert.equal(modules().record.actionsDisabled({ SECURITY_ACTIONS_DISABLED: " true " }), true);
   assert.equal(modules().record.actionsDisabled({}), false);
 });
@@ -180,7 +182,7 @@ test("toIncident: schema v1 shape, catalogue merged, accounts empty, unknown evi
   const { incidents } = modules({ env: { RESEND_API_KEY: "re_x", SECURITY_ALERT_EMAIL: "a@b.invalid", CONTACT_FROM_EMAIL: "f@b.invalid" } });
   const record = incidents.toIncident(row({ actions: [
     { id: 1, kind: "block_subject", created_at: "2026-11-14T15:06:00Z", expires_at: "2099-01-01T00:00:00Z", lifted_at: null },
-    { id: 2, kind: "pause_contact", created_at: "2026-11-14T15:06:00Z", expires_at: "2026-11-14T16:06:00Z", lifted_at: "2026-11-14T15:30:00Z" },
+    { id: 2, kind: "block_subject", created_at: "2026-11-14T15:06:00Z", expires_at: "2026-11-14T16:06:00Z", lifted_at: "2026-11-14T15:30:00Z" },
     { id: 3, kind: "block_subject", created_at: "2026-11-14T15:06:00Z", expires_at: "2026-11-14T15:07:00Z", lifted_at: null }] }),
   { RESEND_API_KEY: "re_x", SECURITY_ALERT_EMAIL: "a@b.invalid", CONTACT_FROM_EMAIL: "f@b.invalid" });
   assert.match(record.id, /^INC-\d{8}-\d{4}$/);
@@ -276,7 +278,7 @@ function securityActions(role) {
 }
 test("security actions: the staff role gets not-found and changes nothing; the owner is validated and redirected", async () => {
   const staff = securityActions("staff");
-  for (const [name, fields] of [["takeAction", { kind: "pause_contact", incident: "INC-20261114-0001", hours: "1" }],
+  for (const [name, fields] of [["takeAction", { kind: "block_subject", incident: "INC-20261114-0001", hours: "1" }],
     ["lift", { action: "1" }], ["changeStatus", { incident: "INC-20261114-0001", status: "resolved" }]]) {
     assert.equal((await staff.run(name, fields)).kind, "notFound", name);
   }
@@ -284,7 +286,7 @@ test("security actions: the staff role gets not-found and changes nothing; the o
   const owned = securityActions("owner");
   assert.equal((await owned.run("takeAction", { kind: "block_subject", incident: "INC-20261114-0001", subject: HASH, hours: "2" })).to, "/admin/security?notice=created");
   same(owned.calls[0][1].slice(2).map((x) => ({ ...x })), [{ kind: "block_subject", incident: "INC-20261114-0001", hours: 2, subject: HASH, actorSubject: HASH }]);
-  for (const bad of [{ kind: "delete_data", incident: "INC-20261114-0001", hours: "1" }, { kind: "pause_contact", incident: "INC-20261114-0001", hours: "25" },
+  for (const bad of [{ kind: "delete_data", incident: "INC-20261114-0001", hours: "1" }, { kind: "pause_contact", incident: "INC-20261114-0001", hours: "1" }, { kind: "pause_contact", incident: "INC-20261114-0001", hours: "25" },
     { kind: "pause_contact", incident: "INC-20261114-0001", hours: "0" }, { kind: "pause_contact", incident: "x", hours: "1" }, { kind: "pause_contact", incident: "INC-20261114-0001", hours: "1.5" }]) {
     assert.equal((await owned.run("takeAction", bad)).to, "/admin/security?notice=invalid", JSON.stringify(bad));
   }
@@ -371,7 +373,7 @@ test("runDetection: validates the answer and keeps only fixed alert fields", asy
 // --- health ---
 test("health problems: an open high incident and stale or missing detection are named; an older database is not flagged", () => {
   const { ops } = modules();
-  const healthy = { jobs: {}, oldestDueJobSeconds: 0, deliveryProblems7d: 0, unmatchedDeliveryEvents: 0, inquiries24h: 0, loginHitsNow: 0 };
+  const healthy = { loginHitsNow: 0 };
   same([...ops.findProblems(healthy)], []);
   same([...ops.findProblems({ ...healthy, securityHighOpen: 0, securityLastRunSeconds: 120 })], []);
   same([...ops.findProblems({ ...healthy, securityHighOpen: 1, securityLastRunSeconds: 120 })], ["security_incident_open"]);
@@ -382,48 +384,7 @@ test("health problems: an open high incident and stale or missing detection are 
   assert.equal(ops.hasCronSecret({ headers: new Headers({ authorization: `Bearer ${token}` }) }, { MONITOR_TOKEN: token }), false);
 });
 
-// --- contact and track: block, pause, events ---
-function contact(security, parse = { kind: "valid", inquiry: {}, submissionKey: null }) {
-  const calls = [];
-  const handler = load("src/lib/server/contact.ts", { "./inquiries/contact-input": { parseContactInput: async () => parse } });
-  const respond = (dependencies) => handler.handleContact(new Request("http://x.test/api/contact", { method: "POST" }), {
-    getConfiguration: () => ({ persistence: configuration, from: "f@example.test", to: "t@example.test" }),
-    limit: async () => { calls.push("limit"); return { kind: "allowed" }; },
-    record: async () => { calls.push("record"); return { kind: "recorded", inquiryId: "id" }; },
-    logError: () => {}, security, ...dependencies });
-  return { respond, calls };
-}
-test("contact: a block answers 429 with its expiry and a pause answers 503, both before the limiter or any write", async () => {
-  const blocked = contact({ gate: async () => ({ kind: "blocked", retryAfter: 1200 }), event: async () => {} });
-  const refused = await blocked.respond();
-  assert.equal(refused.status, 429);
-  assert.equal(refused.headers.get("retry-after"), "1200");
-  same(blocked.calls, []);
-  const paused = contact({ gate: async () => ({ kind: "paused" }), event: async () => {} });
-  const answer = await paused.respond();
-  assert.equal(answer.status, 503);
-  assert.match((await answer.json()).error, /call us/i);
-  same(paused.calls, []);
-  const clear = contact({ gate: async () => ({ kind: "clear" }), event: async () => {} });
-  assert.equal((await clear.respond()).status, 202);
-  same(clear.calls, ["limit", "record"]);
-});
-test("contact: limited and honeypot attempts are counted, with no change to the reply", async () => {
-  const events = [];
-  const security = { gate: async () => ({ kind: "clear" }), event: async (_r, code) => { events.push(code); } };
-  const limited = contact(security);
-  const reply = await limited.respond({ limit: async () => ({ kind: "limited", retryAfter: 30 }) });
-  assert.equal(reply.status, 429);
-  same(events, ["contact_limited"]);
-  const bot = contact(security, { kind: "discard" });
-  const discarded = await bot.respond();
-  assert.equal(discarded.status, 202);
-  same(await discarded.json(), { ok: true });
-  same(events, ["contact_limited", "contact_honeypot"]);
-  same(bot.calls, []);
-  // Without the security dependency (older callers and tests) nothing changes.
-  assert.equal((await contact(undefined).respond()).status, 202);
-});
+// --- track ---
 test("track: a blocked network is dropped quietly before the limiter; a limited one is counted", async () => {
   const events = [], calls = [];
   const track = load("src/lib/server/track.ts", { "server-only": {}, "node:crypto": { createHmac },
@@ -499,5 +460,5 @@ test("recordSecurityEvent: capped per code per minute per instance; the next min
   now += 60_000;
   await record.recordSecurityEvent(request, "cron_bad_secret", configuration, options);
   assert.equal(calls.length, cap + 2, "the next minute passes again");
-  assert.ok(cap >= 50, "above the highest detection threshold (R6 contact_honeypot, 50)");
+  assert.ok(cap >= 50, "above the highest detection threshold (50)");
 });

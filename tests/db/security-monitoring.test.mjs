@@ -381,7 +381,7 @@ test("security monitoring on real PostgreSQL", { timeout: 240_000 }, async (t) =
       assert.equal((await q("select count(*)::int n from inquiry_private.security_actions"))[0].n, 1);
       assert.equal((await q("select count(*)::int n from inquiry_private.security_event_counts"))[0].n, 1);
       assert.equal((await service("select public.run_retention(200) r")).securityRecords, 0);
-      assert.deepEqual(Object.keys(rest).sort(), ["auditEvents", "deliveryEvents", "inquiries", "securityRecords", "submissionKeys"]);
+      assert.deepEqual(Object.keys(rest).sort(), ["auditEvents", "securityRecords"]);
     });
 
     await t.test("ops snapshot: open high incidents and the age of the last run; null before any run", async () => {

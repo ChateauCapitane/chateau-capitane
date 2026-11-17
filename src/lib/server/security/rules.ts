@@ -5,7 +5,7 @@
  */
 export const SEVERITIES = ["info", "low", "medium", "high"] as const;
 export type Severity = (typeof SEVERITIES)[number];
-export type Action = "block_subject" | "pause_contact";
+export type Action = "block_subject";
 
 export type Rule = Readonly<{
   severity: Severity;
@@ -74,15 +74,6 @@ export const RULES = {
     investigation: ["Check the uptime monitor's token", "Check Vercel request logs for the window"],
     actions: [], containment: ["None needed: wrong tokens are refused"],
     rollback: "Nothing to undo.", approvalRequired: ["rotating a token (brief cron pause)"],
-  },
-  R6_spam_wave: {
-    severity: "low", services: ["contact form"], endpoints: ["/api/contact"],
-    technique: "Bot spam on the contact form",
-    uncertainty: "A big event announcement can bring many real guests at once.",
-    investigation: ["Check how many networks are involved", "Check the inquiry inbox for obvious spam"],
-    actions: ["block_subject", "pause_contact"],
-    containment: ["block_subject per network for 1 hour", "pause_contact for 1 hour when many networks are involved"],
-    rollback: LIFT, approvalRequired: [],
   },
   R7_disguised_upload: {
     severity: "medium", services: ["staff photo upload"], endpoints: ["/admin/content"],

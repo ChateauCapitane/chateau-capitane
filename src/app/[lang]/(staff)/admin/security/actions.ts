@@ -22,18 +22,18 @@ const text = (form: FormData, name: string, max: number) => {
   return typeof value === "string" && value.length <= max ? value : "";
 };
 
-/** Blocks one network (from an incident's subject) or pauses the contact form, for 1 to 24 hours. */
+/** Blocks one network (from an incident's subject) for 1 to 24 hours. */
 export async function takeAction(form: FormData): Promise<void> {
   const staff = await owner();
   const kind = text(form, "kind", 20), incident = text(form, "incident", 32);
   const hours = Number(text(form, "hours", 3));
-  if ((kind !== "block_subject" && kind !== "pause_contact") || !INCIDENT_ID.test(incident) ||
+  if (kind !== "block_subject" || !INCIDENT_ID.test(incident) ||
       !Number.isInteger(hours) || hours < 1 || hours > 24) back("invalid");
   const configuration = getPersistenceConfiguration();
   if (!configuration) back("unavailable");
   const result = await createAction(configuration, staff, {
-    kind: kind as "block_subject" | "pause_contact", incident, hours,
-    subject: kind === "block_subject" ? text(form, "subject", 64) : null,
+    kind: kind as "block_subject", incident, hours,
+    subject: text(form, "subject", 64),
     actorSubject: securitySubject({ headers: await headers() }, configuration),
   });
   back(result.kind === "created" ? "created" : result.kind === "refused" ? `refused-${result.reason}` : "unavailable");

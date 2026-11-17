@@ -107,17 +107,15 @@ export const en = {
     title: "Banquets in our own rooms",
     intro: (lowest: number, highest: number) =>
       `Birthdays, anniversaries, memorials, christenings. Every package is all-inclusive and priced per person, from $${lowest} to $${highest}, with the cold table, hot appetizers, entrées, and dessert brought out course by course.`,
-    sendDetails: "Send us the details",
     roomPhoto: "Private dining room set for a banquet",
     bookingTitle: "Booking your date",
     booking:
       "Room capacity, minimum guest counts, and the deposit depend on the date and the room, so we handle those on the phone rather than publishing one number that won’t fit your party. Call us with your date and headcount and we’ll tell you what fits. Banquets are exempt from the corkage fee.",
     packages: "Banquet packages",
     elseTitle: "Something else in mind?",
-    else: "These are the packages we run most often, not a closed list. If your party needs something different, such as dietary restrictions, a smaller group, or a menu built around one dish, tell us and we’ll put it together.",
+    else: "These are the packages we run most often, not a closed list. If your party needs something different, such as dietary restrictions, a smaller group, or a menu built around one dish, call us and we’ll put it together.",
     perPerson: "Per person, all-inclusive",
     minGuests: (count: number) => `Minimum ${count} guests.`,
-    ask: "Ask about this package",
     packageLabel: (name: string, price: number) => `${name}, $${price} per person`,
   },
 
@@ -143,8 +141,7 @@ export const en = {
     eyebrow: "Reservations & directions",
     title: "Contact",
     intro:
-      "Book your table on OpenTable. For banquets or other enquiries, call us or send a note and we’ll come back to you.",
-    sendTitle: "Send a message",
+      "Book your table on OpenTable. For banquets or any other question, call us.",
     visitTitle: "Visit or call",
     faqTitle: "Good to know before you come",
     faqLunchQ: "Is there a weekday lunch special?",
@@ -155,24 +152,6 @@ export const en = {
     faqPartiesLink: "banquets",
     faqPartiesAfter: (phone: string) => `, or call ${phone}.`,
     faqMinimumsQ: "Minimums and corkage",
-    form: {
-      name: "Name",
-      email: "Email",
-      phone: "Phone",
-      optional: "(optional)",
-      event: "Private event",
-      eventNone: "No, a general message",
-      eventUndecided: "Yes, package not chosen yet",
-      date: "Date",
-      guests: "Guests",
-      message: "What can we help with?",
-      send: "Send message",
-      sending: "Sending…",
-      sent: "Thank you. Your message has been recorded for our team to follow up, and we’ll reply by email. This does not confirm a booking.",
-      invalid: "Some details didn’t look right. Please check the form and try again.",
-      failedBefore: "Your message didn’t go through. Please call us at ",
-      failedAfter: " and we’ll sort it out.",
-    },
   },
 
   gallery: {

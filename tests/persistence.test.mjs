@@ -11,11 +11,8 @@ const context = { exports: {}, URL, TextDecoder, AbortController,
   setTimeout: (callback, delay) => setTimeout(callback, Math.min(delay, 25)), clearTimeout,
   require: (name) => { assert.equal(name, "server-only"); return {}; } };
 new Script(outputText).runInNewContext(context);
-const { getPersistenceConfiguration, recordContactInquiry } = context.exports;
+const { getPersistenceConfiguration, callRpc } = context.exports;
 const configuration = { url: "https://example.supabase.co", secretKey: "sb_secret_test" };
-const inquiry = { name: "Synthetic Guest", email: "guest@example.invalid", phone: "", date: "", guests: "", message: "Synthetic request", kind: "contact", eventPackage: "" };
-const key = "12345678-1234-4123-8123-123456789abc";
-const settings = { from: "Website <sender@example.invalid>", to: "staff@example.invalid" };
 
 test("configuration rejects browser keys, insecure remote URLs and embedded credentials", () => {
   for (const env of [{}, { SUPABASE_URL: configuration.url, SUPABASE_SECRET_KEY: "sb_publishable_test" },
@@ -27,70 +24,37 @@ test("configuration rejects browser keys, insecure remote URLs and embedded cred
   assert.equal(getPersistenceConfiguration({ SUPABASE_URL: configuration.url, SUPABASE_SECRET_KEY: configuration.secretKey }).url, configuration.url);
 });
 
-test("caller sends one no-store RPC, canonical key and immutable server notification", async () => {
+test("callRpc sends one no-store POST with the server key and returns the parsed reply", async () => {
   let calls = 0;
-  const result = await recordContactInquiry(inquiry, key.toUpperCase(), settings, { configuration, fetch: async (url, options) => {
+  const result = await callRpc(configuration, "some_function", { p_value: 1 }, 256, async (url, options) => {
     calls++;
-    assert.equal(url, `${configuration.url}/rest/v1/rpc/record_contact_inquiry`);
+    assert.equal(url, `${configuration.url}/rest/v1/rpc/some_function`);
+    assert.equal(options.method, "POST");
     assert.equal(options.cache, "no-store");
     assert.equal(options.headers.apikey, configuration.secretKey);
-    const body = JSON.parse(options.body);
-    assert.equal(body.p_key, key);
-    assert.deepEqual(body.p_inquiry, inquiry);
-    assert.equal(body.p_notification.recipient, settings.to);
-    assert.equal(body.p_notification.reply_to, inquiry.email);
-    return Response.json({ kind: "recorded", inquiryId: key });
-  } });
-  assert.equal(result.kind, "recorded");
-  assert.equal(result.inquiryId, key);
+    assert.deepEqual(JSON.parse(options.body), { p_value: 1 });
+    return Response.json({ ok: true });
+  });
+  assert.deepEqual({ ...result }, { ok: true });
   assert.equal(calls, 1);
 });
 
-test("event inquiries name the requested package in the staff email", async () => {
-  for (const [eventPackage, line] of [["Banquet, $140 per person", "Private event package: Banquet, $140 per person"],
-    ["", "Private event package: Not chosen yet"]]) {
-    await recordContactInquiry({ ...inquiry, kind: "event", eventPackage }, key, settings, { configuration, fetch: async (_url, options) => {
-      const { p_notification } = JSON.parse(options.body);
-      assert.match(p_notification.subject, /private event enquiry/);
-      assert.equal(p_notification.body.split("\n")[0], line);
-      return Response.json({ kind: "recorded", inquiryId: key });
-    } });
-  }
-  await recordContactInquiry(inquiry, key, settings, { configuration, fetch: async (_url, options) => {
-    assert.doesNotMatch(JSON.parse(options.body).p_notification.body, /Private event/);
-    return Response.json({ kind: "recorded", inquiryId: key });
-  } });
-});
-
-test("lost acknowledgment, provider errors and malformed/oversized acknowledgments fail safely without retries", async () => {
+test("provider errors and malformed or oversized replies give undefined, without retries", async () => {
   for (const response of [() => { throw new Error("sensitive provider detail"); },
-    () => new Response("sensitive", { status: 500 }), () => Response.json({ kind: "recorded", inquiryId: "bad" }),
-    () => new Response("x".repeat(2049)), () => new Response("not json")]) {
+    () => new Response("sensitive", { status: 500 }), () => new Response("x".repeat(2049)), () => new Response("not json")]) {
     let calls = 0;
-    const result = await recordContactInquiry(inquiry, key, settings, { configuration, fetch: async () => { calls++; return response(); } });
-    assert.equal(result.kind, "unavailable");
-    assert.equal(Object.keys(result).length, 1);
+    const result = await callRpc(configuration, "some_function", {}, 2048, async () => { calls++; return response(); });
+    assert.equal(result, undefined);
     assert.equal(calls, 1);
   }
 });
 
-test("conflicts are distinct; missing config, malformed keys and invalid delivery settings never call storage", async () => {
-  const conflict = await recordContactInquiry(inquiry, key, settings, { configuration, fetch: async () => Response.json({ kind: "conflict" }) });
-  assert.equal(conflict.kind, "conflict");
-  for (const [config, submissionKey, delivery] of [[null, key, settings], [configuration, "bad", settings],
-    [configuration, key, { ...settings, to: "bad" }], [configuration, key, { ...settings, from: "bad" }],
-    [configuration, key, { ...settings, from: "bad\nheader" }]]) {
-    const result = await recordContactInquiry(inquiry, submissionKey, delivery, { configuration: config, fetch: async () => assert.fail("storage invoked") });
-    assert.equal(result.kind, "unavailable");
-  }
-});
-
-test("stalled RPC aborts and returns uncertainty without automatically resubmitting", async () => {
+test("a stalled RPC aborts and returns undefined without resubmitting", async () => {
   let calls = 0;
-  const result = await recordContactInquiry(inquiry, key, settings, { configuration, fetch: async (_url, options) => {
+  const result = await callRpc(configuration, "some_function", {}, 256, async (_url, options) => {
     calls++;
     return new Promise((_resolve, reject) => options.signal.addEventListener("abort", () => reject(new Error("aborted")), { once: true }));
-  } });
-  assert.equal(result.kind, "unavailable");
+  });
+  assert.equal(result, undefined);
   assert.equal(calls, 1);
 });
